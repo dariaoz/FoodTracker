@@ -1,0 +1,23 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{3F634F3D-DFFB-4C9E-9301-FBC41EF9F4A9}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FoodTracker.Api", "src\FoodTracker.Api\FoodTracker.Api.csproj", "{944BB93F-A83F-4992-A1C2-4EE019FB1816}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{8DC76479-8BA6-432F-813B-221B2AB41383}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{944BB93F-A83F-4992-A1C2-4EE019FB1816}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{944BB93F-A83F-4992-A1C2-4EE019FB1816}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{944BB93F-A83F-4992-A1C2-4EE019FB1816}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{944BB93F-A83F-4992-A1C2-4EE019FB1816}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{944BB93F-A83F-4992-A1C2-4EE019FB1816} = {3F634F3D-DFFB-4C9E-9301-FBC41EF9F4A9}
+	EndGlobalSection
+EndGlobal
