@@ -1,5 +1,6 @@
 bin/
 obj/
+docs/
 /packages/
 riderModule.iml
 /_ReSharper.Caches/

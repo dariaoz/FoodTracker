@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk.Web">
+<Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
         <TargetFramework>net9.0</TargetFramework>
@@ -7,13 +7,11 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="Swashbuckle.AspNetCore" Version="6.9.0"/>
+        <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="9.0.0"/>
     </ItemGroup>
 
     <ItemGroup>
         <ProjectReference Include="..\FoodTracker.Domain\FoodTracker.Domain.csproj"/>
-        <ProjectReference Include="..\FoodTracker.Application\FoodTracker.Application.csproj"/>
-        <ProjectReference Include="..\FoodTracker.Infrastructure\FoodTracker.Infrastructure.csproj"/>
     </ItemGroup>
 
 </Project>

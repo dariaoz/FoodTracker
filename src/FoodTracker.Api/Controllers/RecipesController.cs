@@ -1,5 +1,5 @@
-using FoodTracker.Api.Domain.Entities;
-using FoodTracker.Api.Services;
+using FoodTracker.Api.Models;
+using FoodTracker.Application.Services.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 
 namespace FoodTracker.Api.Controllers;
@@ -13,38 +13,31 @@ public class RecipesController : ControllerBase
     public RecipesController(IRecipeService service) => _service = service;
 
     [HttpGet]
-    public async Task<IActionResult> GetAll(CancellationToken ct) =>
-        Ok(await _service.GetAllAsync(ct));
+    public async Task<IActionResult> GetAll(CancellationToken ct)
+    {
+        var recipes = await _service.GetAllAsync(ct);
+        return Ok(recipes.Select(r => r.ToResponse()).ToList());
+    }
 
     [HttpGet("{id}")]
     public async Task<IActionResult> GetById(string id, CancellationToken ct)
     {
         var recipe = await _service.GetByIdAsync(id, ct);
-        return recipe is null ? NotFound() : Ok(recipe);
+        return recipe is null ? NotFound() : Ok(recipe.ToResponse());
     }
 
     [HttpPost]
-    public async Task<IActionResult> Create([FromBody] Recipe recipe, CancellationToken ct)
+    public async Task<IActionResult> Create([FromBody] RecipeRequest request, CancellationToken ct)
     {
-        var created = await _service.CreateAsync(recipe, ct);
-        return CreatedAtAction(nameof(GetById), new { id = created.Id }, created);
+        var created = await _service.CreateAsync(request.ToDomain(), ct);
+        return CreatedAtAction(nameof(GetById), new { id = created.Id }, created.ToResponse());
     }
 
     [HttpPut("{id}")]
-    public async Task<IActionResult> Update(string id, [FromBody] Recipe recipe, CancellationToken ct)
+    public async Task<IActionResult> Update(string id, [FromBody] RecipeRequest request, CancellationToken ct)
     {
-        var updated = await _service.UpdateAsync(
-            new Recipe
-            {
-                Id = id,
-                Name = recipe.Name,
-                Servings = recipe.Servings,
-                Calories = recipe.Calories,
-                Protein = recipe.Protein,
-                Carbs = recipe.Carbs,
-                Fat = recipe.Fat
-            }, ct);
-        return Ok(updated);
+        var updated = await _service.UpdateAsync(request.ToDomain(id), ct);
+        return Ok(updated.ToResponse());
     }
 
     [HttpDelete("{id}")]
