@@ -8,7 +8,7 @@ builder.Services.AddInfrastructure(builder.Configuration);
 builder.Services.AddApplication();
 
 builder.Services.AddProblemDetails();
-builder.Services.AddControllers();
+builder.Services.AddControllers(options => options.SuppressAsyncSuffixInActionNames = false);
 builder.Services.AddSwaggerGen(options =>
     options.SwaggerDoc("v1", new OpenApiInfo { Title = "FoodTracker API", Version = "v1" }));
 

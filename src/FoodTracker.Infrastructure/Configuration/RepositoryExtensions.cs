@@ -1,7 +1,11 @@
-using FoodTracker.Application.Repositories;
-using FoodTracker.Application.UnitOfWork;
-using FoodTracker.Infrastructure.Notion.Repositories;
-using FoodTracker.Infrastructure.Notion.UnitOfWork;
+using FoodTracker.Application.FoodLogs;
+using FoodTracker.Application.Products;
+using FoodTracker.Application.Recipes;
+using FoodTracker.Application.Shared;
+using FoodTracker.Infrastructure.FoodLogs;
+using FoodTracker.Infrastructure.Products;
+using FoodTracker.Infrastructure.Recipes;
+using FoodTracker.Infrastructure.Shared;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace FoodTracker.Infrastructure.Configuration;

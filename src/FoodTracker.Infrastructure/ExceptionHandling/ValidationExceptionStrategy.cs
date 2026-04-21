@@ -1,4 +1,4 @@
-using FoodTracker.Domain.Validation;
+using FoodTracker.Domain.Shared;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 

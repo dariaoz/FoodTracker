@@ -1,5 +1,7 @@
-using FoodTracker.Domain.Entities;
-using FoodTracker.Domain.Validation;
+using FoodTracker.Domain.FoodLogs;
+using FoodTracker.Domain.Products;
+using FoodTracker.Domain.Recipes;
+using FoodTracker.Domain.Shared;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace FoodTracker.Application.Configuration;

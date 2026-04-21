@@ -1,4 +1,4 @@
-using FoodTracker.Infrastructure.Notion.Client;
+using FoodTracker.Infrastructure.Shared;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 

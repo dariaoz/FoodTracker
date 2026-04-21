@@ -1,5 +1,5 @@
-using FoodTracker.Api.Models;
-using FoodTracker.Application.Services.Interfaces;
+using FoodTracker.Api.Models.Recipes;
+using FoodTracker.Application.Recipes;
 using Microsoft.AspNetCore.Mvc;
 
 namespace FoodTracker.Api.Controllers;
@@ -13,28 +13,28 @@ public class RecipesController : ControllerBase
     public RecipesController(IRecipeService service) => _service = service;
 
     [HttpGet]
-    public async Task<IActionResult> GetAll(CancellationToken ct)
+    public async Task<IActionResult> GetAllAsync(CancellationToken ct)
     {
         var recipes = await _service.GetAllAsync(ct);
         return Ok(recipes.Select(r => r.ToResponse()).ToList());
     }
 
     [HttpGet("{id}")]
-    public async Task<IActionResult> GetById(string id, CancellationToken ct)
+    public async Task<IActionResult> GetByIdAsync(string id, CancellationToken ct)
     {
         var recipe = await _service.GetByIdAsync(id, ct);
         return recipe is null ? NotFound() : Ok(recipe.ToResponse());
     }
 
     [HttpPost]
-    public async Task<IActionResult> Create([FromBody] RecipeRequest request, CancellationToken ct)
+    public async Task<IActionResult> CreateAsync([FromBody] RecipeRequest request, CancellationToken ct)
     {
         var created = await _service.CreateAsync(request.ToDomain(), ct);
-        return CreatedAtAction(nameof(GetById), new { id = created.Id }, created.ToResponse());
+        return CreatedAtAction(nameof(GetByIdAsync), new { id = created.Id }, created.ToResponse());
     }
 
     [HttpDelete("{id}")]
-    public async Task<IActionResult> Delete(string id, CancellationToken ct)
+    public async Task<IActionResult> DeleteAsync(string id, CancellationToken ct)
     {
         await _service.DeleteAsync(id, ct);
         return NoContent();

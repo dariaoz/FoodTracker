@@ -16,4 +16,8 @@
         <ProjectReference Include="..\FoodTracker.Infrastructure\FoodTracker.Infrastructure.csproj"/>
     </ItemGroup>
 
+    <ItemGroup>
+      <Folder Include="FoodLog\" />
+    </ItemGroup>
+
 </Project>
