@@ -22,7 +22,7 @@ Clean Architecture with four projects:
 - **FoodTracker.Domain** — entities (`Product`, `Recipe`, `FoodLog`, `Serving`, `ServingUnit`), domain interfaces (`IHaveMacronutrients`, `IHaveCalories`), and validators (`IValidator<T>`, `ProductValidator`, `RecipeValidator`, `FoodLogValidator`). No external dependencies.
 - **FoodTracker.Application** — service interfaces and implementations (`ProductService`, `RecipeService`, `FoodLogService`), repository interfaces (`IRepository<T>`, `IProductRepository`, `IRecipeRepository`, `IFoodLogRepository`), and `INotionUnitOfWork`. Services call `_validator.Validate(entity)` before any write, then delegate to the repository through the unit of work.
 - **FoodTracker.Infrastructure** — Notion API backend. `NotionClient` wraps the Notion REST API. Three repositories (`ProductRepository`, `RecipeRepository`, `FoodLogRepository`) use `INotionClient` + `IDistributedCache` (Redis, 15-min TTL). Mappers in `Notion/Mappers/` translate between Notion page properties and domain entities. `NotionUnitOfWork` exposes all three repositories. Exception handling middleware in `ExceptionHandling/` with a strategy pattern (`IExceptionHandlerStrategy`) — `ValidationExceptionStrategy` maps `ValidationException` to 400.
-- **FoodTracker.Api** — ASP.NET Core Web API. Three controllers (`ProductsController`, `RecipesController`, `FoodLogController`) wired to application services via DI.
+- **FoodTracker.Api** — ASP.NET Core Web API. Three controllers (`ProductsController`, `RecipesController`, `FoodLogController`) wired to application services via DI. `Models/` contains request models (`ProductRequest`, `RecipeRequest`, `FoodLogRequest`), response models (`ProductResponse`, `RecipeResponse`, `FoodLogResponse`), and `Mappings.cs` with extension methods to convert between them and domain entities.
 
 ## Configuration
 
@@ -30,6 +30,10 @@ Clean Architecture with four projects:
 - `Notion:ApiKey` — Notion integration token
 - `Notion:ProductsDatabaseId`, `Notion:RecipesDatabaseId`, `Notion:FoodLogDatabaseId` — Notion database IDs
 - `Redis:ConnectionString` — defaults to `localhost:6379`
+
+## Documentation
+
+All documentation and design notes are stored as `.md` files under `docs/`.
 
 ## Domain rules
 
