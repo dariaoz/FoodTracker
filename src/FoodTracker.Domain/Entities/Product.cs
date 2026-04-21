@@ -12,5 +12,5 @@ public class Product : IHaveMacronutrients
     public double Carbs { get; init; }
     public double Fat { get; init; }
 
-    public Serving Serving => new(ServingUnit, 1m);
+    public Serving Serving => new(ServingUnit, 100m);
 }

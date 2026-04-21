@@ -28,6 +28,12 @@ internal static class NotionPropertyHelper
     public static string GetSelect(Dictionary<string, NotionPropertyValue> props, string key) =>
         props.TryGetValue(key, out NotionPropertyValue? prop) ? prop.Select?.Name ?? string.Empty : string.Empty;
 
+    public static T GetEnum<T>(Dictionary<string, NotionPropertyValue> props, string key) where T : struct, Enum
+    {
+        string value = GetSelect(props, key);
+        return Enum.TryParse<T>(value, out T result) ? result : default;
+    }
+
     public static DateOnly GetDate(Dictionary<string, NotionPropertyValue> props, string key)
     {
         if (!props.TryGetValue(key, out NotionPropertyValue? prop) || prop.Date is null)

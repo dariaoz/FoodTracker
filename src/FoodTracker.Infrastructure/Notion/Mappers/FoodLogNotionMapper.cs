@@ -8,34 +8,31 @@ internal static class FoodLogNotionMapper
     public static FoodLog ToEntity(NotionPage page, Product? product, Recipe? recipe)
     {
         Dictionary<string, NotionPropertyValue> p = page.Properties;
-        decimal portionQ = NotionPropertyHelper.GetDecimal(p, "PortionQ");
         decimal quantity = NotionPropertyHelper.GetDecimal(p, "Quantity");
+        ServingUnit servingUnit = NotionPropertyHelper.GetEnum<ServingUnit>(p, "ServingUnit");
 
         double calories, protein, carbs, fat;
-        ServingUnit servingUnit;
 
         if (recipe is not null)
         {
-            var factor = (double)portionQ;
+            var defaultQty = (double)recipe.Serving.Quantity;
+            var factor = (double)quantity / defaultQty;
             calories = recipe.Calories * factor;
             protein = recipe.Protein * factor;
             carbs = recipe.Carbs * factor;
             fat = recipe.Fat * factor;
-            servingUnit = ServingUnit.Portion;
         }
         else if (product is not null)
         {
-            var factor = (double)(quantity / 100m);
+            var factor = (double)quantity / (double)product.Serving.Quantity;
             calories = product.Calories * factor;
             protein = product.Protein * factor;
             carbs = product.Carbs * factor;
             fat = product.Fat * factor;
-            servingUnit = product.ServingUnit;
         }
         else
         {
             calories = protein = carbs = fat = 0;
-            servingUnit = ServingUnit.Gram;
         }
 
         return new FoodLog
@@ -46,7 +43,6 @@ internal static class FoodLogNotionMapper
             ProductId = NotionPropertyHelper.GetString(p, "ProductId"),
             ServingUnit = servingUnit,
             Quantity = quantity,
-            PortionQ = portionQ,
             Calories = calories,
             Protein = protein,
             Carbs = carbs,
@@ -65,8 +61,8 @@ internal static class FoodLogNotionMapper
         Date = DateProperty(log.Date),
         RecipeId = RichTextProperty(log.RecipeId ?? string.Empty),
         ProductId = RichTextProperty(log.ProductId ?? string.Empty),
-        Quantity = NumberProperty((double)log.Quantity),
-        PortionQ = NumberProperty((double)log.PortionQ)
+        ServingUnit = SelectProperty(log.ServingUnit.ToString()),
+        Quantity = NumberProperty((double)log.Quantity)
     };
 
     private static object DateProperty(DateOnly date) => new { date = new { start = date.ToString("yyyy-MM-dd") } };
@@ -75,4 +71,6 @@ internal static class FoodLogNotionMapper
         new { rich_text = new[] { new { text = new { content = value } } } };
 
     private static object NumberProperty(double value) => new { number = value };
+
+    private static object SelectProperty(string value) => new { select = new { name = value } };
 }

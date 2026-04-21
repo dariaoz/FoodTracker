@@ -20,11 +20,8 @@ public class FoodLogValidator : IValidator<FoodLog>
         if (hasRecipe && hasProduct)
             errors.Add("RecipeId and ProductId cannot both be set.");
 
-        if (hasRecipe && entity.PortionQ <= 0)
-            errors.Add("PortionQ must be > 0 for recipe-based entries.");
-
-        if (hasProduct && entity.Quantity <= 0)
-            errors.Add("Quantity must be > 0 for product-based entries.");
+        if (entity.Quantity <= 0)
+            errors.Add("Quantity must be > 0.");
 
         if (errors.Count > 0)
             throw new ValidationException(errors);

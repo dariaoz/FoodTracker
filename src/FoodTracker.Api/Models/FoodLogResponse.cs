@@ -10,7 +10,6 @@ public class FoodLogResponse
     public string? ProductId { get; init; }
     public ServingUnit ServingUnit { get; init; }
     public decimal Quantity { get; init; }
-    public decimal PortionQ { get; init; }
     public double Calories { get; init; }
     public double Protein { get; init; }
     public double Carbs { get; init; }

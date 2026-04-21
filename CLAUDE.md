@@ -39,7 +39,8 @@ All documentation and design notes are stored as `.md` files under `docs/`.
 
 - `FoodLog` links to either a `Product` or a `Recipe`, never both.
 - `Product` `ServingUnit` must be `Gram` or `Milliliter` (not `Portion`).
-- `Recipe` uses `Portion` as its serving unit.
+- `Recipe` `ServingUnit` can be `Gram`, `Milliliter`, or `Portion`. Its `Serving` property returns a default quantity of 100 for g/ml and 1 for portion.
+- `FoodLog.Quantity` is always supplied by the caller — no default is applied at the domain level.
 - `ValidationException` carries a list of error strings and is the only domain exception type.
 - "Delete" in this system archives the Notion page (`in_trash: true`) rather than hard-deleting it.
 - **Macronutrients in `FoodLog` are a snapshot, intentionally.** Calories/protein/carbs/fat are computed from the linked `Product` or `Recipe` at write time and stored. If a product's macros are later corrected, historical log entries keep the original values — this is by design.
