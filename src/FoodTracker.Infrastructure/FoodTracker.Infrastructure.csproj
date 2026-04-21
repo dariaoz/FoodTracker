@@ -7,18 +7,19 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <FrameworkReference Include="Microsoft.AspNetCore.App"/>
+        <FrameworkReference Include="Microsoft.AspNetCore.App" />
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="9.0.0"/>
-        <PackageReference Include="StackExchange.Redis" Version="2.8.31"/>
-        <PackageReference Include="Microsoft.Extensions.Caching.StackExchangeRedis" Version="9.0.0"/>
+        <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="9.0.0" />
+        <PackageReference Include="Scrutor" Version="7.0.0" />
+        <PackageReference Include="StackExchange.Redis" Version="2.8.31" />
+        <PackageReference Include="Microsoft.Extensions.Caching.StackExchangeRedis" Version="9.0.0" />
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\FoodTracker.Domain\FoodTracker.Domain.csproj"/>
-        <ProjectReference Include="..\FoodTracker.Application\FoodTracker.Application.csproj"/>
+        <ProjectReference Include="..\FoodTracker.Domain\FoodTracker.Domain.csproj" />
+        <ProjectReference Include="..\FoodTracker.Application\FoodTracker.Application.csproj" />
     </ItemGroup>
 
 </Project>

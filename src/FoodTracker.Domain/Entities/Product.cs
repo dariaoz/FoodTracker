@@ -2,7 +2,7 @@ using FoodTracker.Domain.Interfaces;
 
 namespace FoodTracker.Domain.Entities;
 
-public class Product : IHaveMacronutrients
+public class Product : IHaveMacronutrients, IMacroSource, IHaveId
 {
     public string Id { get; init; } = string.Empty;
     public string Name { get; init; } = string.Empty;
@@ -13,4 +13,10 @@ public class Product : IHaveMacronutrients
     public double Fat { get; init; }
 
     public Serving Serving => new(ServingUnit, 100m);
+
+    public MacroSnapshot ComputeMacros(decimal quantity)
+    {
+        double ratio = (double)quantity / 100.0;
+        return new(Calories * ratio, Protein * ratio, Carbs * ratio, Fat * ratio);
+    }
 }

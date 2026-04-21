@@ -2,7 +2,7 @@ using FoodTracker.Application.Repositories;
 
 namespace FoodTracker.Application.UnitOfWork;
 
-public interface INotionUnitOfWork
+public interface INotionContext
 {
     IProductRepository Products { get; }
     IRecipeRepository Recipes { get; }

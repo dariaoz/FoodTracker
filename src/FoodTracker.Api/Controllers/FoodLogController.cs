@@ -15,17 +15,17 @@ public class FoodLogController : ControllerBase
     [HttpGet]
     public async Task<IActionResult> GetAll([FromQuery] DateOnly? date, CancellationToken ct)
     {
-        var logs = date.HasValue
+        var foodLogs = date.HasValue
             ? await _service.GetByDateAsync(date.Value, ct)
             : await _service.GetAllAsync(ct);
-        return Ok(logs.Select(l => l.ToResponse()).ToList());
+        return Ok(foodLogs.Select(fl => fl.ToResponse()).ToList());
     }
 
     [HttpGet("{id}")]
     public async Task<IActionResult> GetById(string id, CancellationToken ct)
     {
-        var log = await _service.GetByIdAsync(id, ct);
-        return log is null ? NotFound() : Ok(log.ToResponse());
+        var foodLog = await _service.GetByIdAsync(id, ct);
+        return foodLog is null ? NotFound() : Ok(foodLog.ToResponse());
     }
 
     [HttpPost]
@@ -33,13 +33,6 @@ public class FoodLogController : ControllerBase
     {
         var created = await _service.CreateAsync(request.ToDomain(), ct);
         return CreatedAtAction(nameof(GetById), new { id = created.Id }, created.ToResponse());
-    }
-
-    [HttpPut("{id}")]
-    public async Task<IActionResult> Update(string id, [FromBody] FoodLogRequest request, CancellationToken ct)
-    {
-        var updated = await _service.UpdateAsync(request.ToDomain(id), ct);
-        return Ok(updated.ToResponse());
     }
 
     [HttpDelete("{id}")]

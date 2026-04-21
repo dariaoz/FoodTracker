@@ -33,13 +33,6 @@ public class ProductsController : ControllerBase
         return CreatedAtAction(nameof(GetById), new { id = created.Id }, created.ToResponse());
     }
 
-    [HttpPut("{id}")]
-    public async Task<IActionResult> Update(string id, [FromBody] ProductRequest request, CancellationToken ct)
-    {
-        var updated = await _service.UpdateAsync(request.ToDomain(id), ct);
-        return Ok(updated.ToResponse());
-    }
-
     [HttpDelete("{id}")]
     public async Task<IActionResult> Delete(string id, CancellationToken ct)
     {

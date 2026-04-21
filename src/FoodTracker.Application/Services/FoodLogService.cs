@@ -1,5 +1,6 @@
 using FoodTracker.Application.Services.Interfaces;
 using FoodTracker.Domain.Entities;
+using FoodTracker.Domain.Interfaces;
 using FoodTracker.Domain.Validation;
 using FoodTracker.Application.UnitOfWork;
 
@@ -7,30 +8,51 @@ namespace FoodTracker.Application.Services;
 
 public class FoodLogService : IFoodLogService
 {
-    private readonly INotionUnitOfWork _uow;
+    private readonly INotionContext _context;
     private readonly IValidator<FoodLog> _validator;
 
-    public FoodLogService(INotionUnitOfWork uow, IValidator<FoodLog> validator)
+    public FoodLogService(INotionContext context, IValidator<FoodLog> validator)
     {
-        _uow = uow;
+        _context = context;
         _validator = validator;
     }
 
-    public Task<IList<FoodLog>> GetAllAsync(CancellationToken ct = default) => _uow.FoodLogs.GetAllAsync(ct);
-    public Task<IList<FoodLog>> GetByDateAsync(DateOnly date, CancellationToken ct = default) => _uow.FoodLogs.GetByDateAsync(date, ct);
-    public Task<FoodLog?> GetByIdAsync(string id, CancellationToken ct = default) => _uow.FoodLogs.GetByIdAsync(id, ct);
+    public Task<IList<FoodLog>> GetAllAsync(CancellationToken ct = default) => _context.FoodLogs.GetAllAsync(ct);
+    public Task<IList<FoodLog>> GetByDateAsync(DateOnly date, CancellationToken ct = default) => _context.FoodLogs.GetByDateAsync(date, ct);
+    public Task<FoodLog?> GetByIdAsync(string id, CancellationToken ct = default) => _context.FoodLogs.GetByIdAsync(id, ct);
 
-    public Task<FoodLog> CreateAsync(FoodLog log, CancellationToken ct = default)
+    public async Task<FoodLog> CreateAsync(FoodLog foodLog, CancellationToken ct = default)
     {
-        _validator.Validate(log);
-        return _uow.FoodLogs.CreateAsync(log, ct);
+        _validator.Validate(foodLog);
+
+        IMacroSource source = await ResolveSourceAsync(foodLog, ct);
+
+        if (foodLog.ServingUnit != source.ServingUnit)
+            throw new ValidationException([$"ServingUnit must match the source's ServingUnit ({source.ServingUnit})."]);
+
+        MacroSnapshot macros = source.ComputeMacros(foodLog.Quantity);
+
+        return await _context.FoodLogs.CreateAsync(new FoodLog
+        {
+            Id = foodLog.Id,
+            Date = foodLog.Date,
+            ProductId = foodLog.ProductId,
+            RecipeId = foodLog.RecipeId,
+            ServingUnit = foodLog.ServingUnit,
+            Quantity = foodLog.Quantity,
+            Calories = macros.Calories,
+            Protein = macros.Protein,
+            Carbs = macros.Carbs,
+            Fat = macros.Fat
+        }, ct);
     }
 
-    public Task<FoodLog> UpdateAsync(FoodLog log, CancellationToken ct = default)
-    {
-        _validator.Validate(log);
-        return _uow.FoodLogs.UpdateAsync(log, ct);
-    }
+    public Task DeleteAsync(string id, CancellationToken ct = default) => _context.FoodLogs.DeleteAsync(id, ct);
 
-    public Task DeleteAsync(string id, CancellationToken ct = default) => _uow.FoodLogs.DeleteAsync(id, ct);
+    private async Task<IMacroSource> ResolveSourceAsync(FoodLog foodLog, CancellationToken ct) =>
+        foodLog.ProductId is not null
+            ? await _context.Products.GetByIdAsync(foodLog.ProductId, ct)
+                ?? throw new ValidationException([$"Product '{foodLog.ProductId}' not found."])
+            : await _context.Recipes.GetByIdAsync(foodLog.RecipeId!, ct)
+                ?? throw new ValidationException([$"Recipe '{foodLog.RecipeId}' not found."]);
 }

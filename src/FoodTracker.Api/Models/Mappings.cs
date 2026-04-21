@@ -57,11 +57,7 @@ internal static class Mappings
         RecipeId = r.RecipeId,
         ProductId = r.ProductId,
         ServingUnit = r.ServingUnit,
-        Quantity = r.Quantity,
-        Calories = r.Calories,
-        Protein = r.Protein,
-        Carbs = r.Carbs,
-        Fat = r.Fat
+        Quantity = r.Quantity
     };
 
     internal static FoodLogResponse ToResponse(this FoodLog l) => new()

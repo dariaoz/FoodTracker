@@ -1,8 +1,8 @@
 using FoodTracker.Application.Repositories;
-using Microsoft.Extensions.DependencyInjection;
 using FoodTracker.Application.UnitOfWork;
 using FoodTracker.Infrastructure.Notion.Repositories;
 using FoodTracker.Infrastructure.Notion.UnitOfWork;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace FoodTracker.Infrastructure.Configuration;
 
@@ -13,6 +13,11 @@ internal static class RepositoryExtensions
         services.AddScoped<IProductRepository, ProductRepository>();
         services.AddScoped<IRecipeRepository, RecipeRepository>();
         services.AddScoped<IFoodLogRepository, FoodLogRepository>();
-        services.AddScoped<INotionUnitOfWork, NotionUnitOfWork>();
+
+        services.Decorate<IProductRepository, CachedProductRepository>();
+        services.Decorate<IRecipeRepository, CachedRecipeRepository>();
+        services.Decorate<IFoodLogRepository, CachedFoodLogRepository>();
+
+        services.AddScoped<INotionContext, NotionContext>();
     }
 }

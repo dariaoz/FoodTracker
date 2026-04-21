@@ -9,8 +9,4 @@ public class FoodLogRequest
     public string? ProductId { get; init; }
     public ServingUnit ServingUnit { get; init; }
     public decimal Quantity { get; init; }
-    public double Calories { get; init; }
-    public double Protein { get; init; }
-    public double Carbs { get; init; }
-    public double Fat { get; init; }
 }

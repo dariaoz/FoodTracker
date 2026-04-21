@@ -2,7 +2,7 @@ using FoodTracker.Domain.Interfaces;
 
 namespace FoodTracker.Domain.Entities;
 
-public class FoodLog : IHaveMacronutrients
+public class FoodLog : IHaveMacronutrients, IHaveId
 {
     public string Id { get; init; } = string.Empty;
     public DateOnly Date { get; init; }

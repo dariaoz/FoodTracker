@@ -56,13 +56,13 @@ internal static class FoodLogNotionMapper
     public static string GetLinkedProductId(Dictionary<string, NotionPropertyValue> props) =>
         NotionPropertyHelper.GetString(props, "ProductId");
 
-    public static object ToNotionProperties(FoodLog log) => new
+    public static object ToNotionProperties(FoodLog foodLog) => new
     {
-        Date = DateProperty(log.Date),
-        RecipeId = RichTextProperty(log.RecipeId ?? string.Empty),
-        ProductId = RichTextProperty(log.ProductId ?? string.Empty),
-        ServingUnit = SelectProperty(log.ServingUnit.ToString()),
-        Quantity = NumberProperty((double)log.Quantity)
+        Date = DateProperty(foodLog.Date),
+        RecipeId = RichTextProperty(foodLog.RecipeId ?? string.Empty),
+        ProductId = RichTextProperty(foodLog.ProductId ?? string.Empty),
+        ServingUnit = SelectProperty(foodLog.ServingUnit.ToString()),
+        Quantity = NumberProperty((double)foodLog.Quantity)
     };
 
     private static object DateProperty(DateOnly date) => new { date = new { start = date.ToString("yyyy-MM-dd") } };
