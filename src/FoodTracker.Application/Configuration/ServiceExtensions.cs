@@ -1,6 +1,9 @@
 using FoodTracker.Application.FoodLogs;
+using FoodTracker.Application.FoodLogs.Interfaces;
 using FoodTracker.Application.Products;
+using FoodTracker.Application.Products.Interfaces;
 using FoodTracker.Application.Recipes;
+using FoodTracker.Application.Recipes.Interfaces;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace FoodTracker.Application.Configuration;

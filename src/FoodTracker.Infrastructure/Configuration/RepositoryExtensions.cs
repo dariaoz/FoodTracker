@@ -1,6 +1,6 @@
-using FoodTracker.Application.FoodLogs;
-using FoodTracker.Application.Products;
-using FoodTracker.Application.Recipes;
+using FoodTracker.Application.FoodLogs.Interfaces;
+using FoodTracker.Application.Products.Interfaces;
+using FoodTracker.Application.Recipes.Interfaces;
 using FoodTracker.Application.Shared;
 using FoodTracker.Infrastructure.FoodLogs;
 using FoodTracker.Infrastructure.Products;

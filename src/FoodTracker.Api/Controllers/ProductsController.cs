@@ -1,5 +1,5 @@
 using FoodTracker.Api.Models.Products;
-using FoodTracker.Application.Products;
+using FoodTracker.Application.Products.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 
 namespace FoodTracker.Api.Controllers;

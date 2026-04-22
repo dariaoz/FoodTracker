@@ -1,6 +1,6 @@
 using FoodTracker.Domain.Recipes;
 
-namespace FoodTracker.Application.Recipes;
+namespace FoodTracker.Application.Recipes.Interfaces;
 
 public interface IRecipeService
 {

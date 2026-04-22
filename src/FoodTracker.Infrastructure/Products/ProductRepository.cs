@@ -1,4 +1,4 @@
-using FoodTracker.Application.Products;
+using FoodTracker.Application.Products.Interfaces;
 using FoodTracker.Domain.Products;
 using FoodTracker.Infrastructure.Configuration;
 using FoodTracker.Infrastructure.Shared;

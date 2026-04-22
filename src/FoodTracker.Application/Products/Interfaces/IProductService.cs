@@ -1,6 +1,6 @@
 using FoodTracker.Domain.Products;
 
-namespace FoodTracker.Application.Products;
+namespace FoodTracker.Application.Products.Interfaces;
 
 public interface IProductService
 {

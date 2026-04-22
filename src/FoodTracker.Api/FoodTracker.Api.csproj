@@ -1,23 +1,20 @@
-<Project Sdk="Microsoft.NET.Sdk.Web">
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 
     <PropertyGroup>
         <TargetFramework>net9.0</TargetFramework>
         <Nullable>enable</Nullable>
         <ImplicitUsings>enable</ImplicitUsings>
-    </PropertyGroup>
+      <UserSecretsId>FoodTracker</UserSecretsId>
+  </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="Swashbuckle.AspNetCore" Version="6.9.0"/>
+        <PackageReference Include="Swashbuckle.AspNetCore" Version="6.9.0" />
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\FoodTracker.Domain\FoodTracker.Domain.csproj"/>
-        <ProjectReference Include="..\FoodTracker.Application\FoodTracker.Application.csproj"/>
-        <ProjectReference Include="..\FoodTracker.Infrastructure\FoodTracker.Infrastructure.csproj"/>
-    </ItemGroup>
-
-    <ItemGroup>
-      <Folder Include="FoodLog\" />
+        <ProjectReference Include="..\FoodTracker.Domain\FoodTracker.Domain.csproj" />
+        <ProjectReference Include="..\FoodTracker.Application\FoodTracker.Application.csproj" />
+        <ProjectReference Include="..\FoodTracker.Infrastructure\FoodTracker.Infrastructure.csproj" />
     </ItemGroup>
 
 </Project>

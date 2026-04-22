@@ -1,6 +1,7 @@
 using FoodTracker.Infrastructure.Shared;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 
 namespace FoodTracker.Infrastructure.Configuration;
 
@@ -10,10 +11,11 @@ internal static class NotionClientExtensions
     {
         services.Configure<NotionOptions>(configuration.GetSection("Notion"));
 
-        services.AddHttpClient<INotionClient, NotionClient>(client =>
+        services.AddHttpClient<INotionClient, NotionClient>((sp, client) =>
         {
-            client.BaseAddress = new Uri("https://api.notion.com/v1/");
-            client.DefaultRequestHeaders.Add("Notion-Version", "2026-03-11");
+            NotionOptions options = sp.GetRequiredService<IOptions<NotionOptions>>().Value;
+            client.BaseAddress = new Uri(options.BaseAddress);
+            client.DefaultRequestHeaders.Add("Notion-Version", options.NotionVersion);
         });
     }
 }

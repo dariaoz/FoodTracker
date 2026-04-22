@@ -22,17 +22,21 @@ Clean Architecture with four projects:
 Each project is organized by feature folder (`Products/`, `Recipes/`, `FoodLogs/`) plus a `Shared/` folder for cross-cutting types. Within each feature folder, all related files live together (entity + validator, service + interface + repository, controller + request/response/mappings).
 
 - **FoodTracker.Domain** — feature folders: `Products/` (`Product`, `ProductValidator`), `Recipes/` (`Recipe`, `RecipeValidator`), `FoodLogs/` (`FoodLog`, `FoodLogValidator`). `Shared/` holds value types (`Serving`, `ServingUnit`, `MacroSnapshot`), interfaces (`IHaveMacronutrients`, `IHaveCalories`, `IHaveId`, `IMacroSource`), and validation primitives (`IValidator<T>`, `ValidationException`). No external dependencies.
-- **FoodTracker.Application** — feature folders: `Products/` (`IProductRepository`, `IProductService`, `ProductService`), `Recipes/` (`IRecipeRepository`, `IRecipeService`, `RecipeService`), `FoodLogs/` (`IFoodLogRepository`, `IFoodLogService`, `FoodLogService`). `Shared/` holds `IRepository<T>` and `INotionContext`. Services call `_validator.Validate(entity)` before any write, then delegate to repositories through the context.
+- **FoodTracker.Application** — feature folders: `Products/` (`ProductService`, `Interfaces/IProductRepository`, `Interfaces/IProductService`), `Recipes/` (`RecipeService`, `Interfaces/IRecipeRepository`, `Interfaces/IRecipeService`), `FoodLogs/` (`FoodLogService`, `Interfaces/IFoodLogRepository`, `Interfaces/IFoodLogService`). `Shared/` holds `IRepository<T>` and `INotionContext`. Services call `_validator.Validate(entity)` before any write, then delegate to repositories through the context.
 - **FoodTracker.Infrastructure** — Notion API backend. Feature folders: `Products/`, `Recipes/`, `FoodLogs/` each contain a base repository, cached repository decorator, and Notion mapper. `Shared/` holds `INotionClient`, `NotionClient`, `NotionModels`, `NotionPropertyHelper`, `CachedRepository<T>`, and `NotionContext`. Exception handling middleware in `ExceptionHandling/` with a strategy pattern (`IExceptionHandlerStrategy`) — `ValidationExceptionStrategy` maps `ValidationException` to 400.
 - **FoodTracker.Api** — ASP.NET Core Web API. Controllers live in `Controllers/` (one per feature). Models live in `Models/Products/`, `Models/Recipes/`, `Models/FoodLogs/` — each containing request, response, and mapping extension methods. Controllers expose only `GET`, `POST`, and `DELETE` — no `PUT`. All controller action methods use the `Async` suffix; `SuppressAsyncSuffixInActionNames = false` is set so `CreatedAtAction(nameof(...))` resolves correctly.
 
 ## Configuration
 
-`appsettings.json` requires:
+`appsettings.json` holds non-sensitive defaults:
+- `Notion:BaseAddress` — Notion API base URL (`https://api.notion.com/v1/`)
+- `Notion:NotionVersion` — Notion API version header value
+- `Cache:TtlMinutes` — Redis cache TTL in minutes, defaults to 15
+
+Sensitive values are stored in user secrets (`dotnet user-secrets`):
 - `Notion:ApiKey` — Notion integration token
 - `Notion:ProductsDatabaseId`, `Notion:RecipesDatabaseId`, `Notion:FoodLogDatabaseId` — Notion database IDs
 - `Redis:ConnectionString` — defaults to `localhost:6379`
-- `Cache:TtlMinutes` — Redis cache TTL in minutes, defaults to 15
 
 ## Documentation
 
