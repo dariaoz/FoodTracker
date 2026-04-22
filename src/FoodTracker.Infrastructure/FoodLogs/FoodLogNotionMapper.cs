@@ -11,15 +11,14 @@ internal static class FoodLogNotionMapper
     public static FoodLog ToEntity(NotionPage page, Product? product, Recipe? recipe)
     {
         Dictionary<string, NotionPropertyValue> p = page.Properties;
-        decimal quantity = NotionPropertyHelper.GetDecimal(p, "Quantity");
+        double quantity = NotionPropertyHelper.GetDouble(p, "Quantity");
         ServingUnit servingUnit = NotionPropertyHelper.GetEnum<ServingUnit>(p, "ServingUnit");
 
         double calories, protein, carbs, fat;
 
         if (recipe is not null)
         {
-            var defaultQty = (double)recipe.Serving.Quantity;
-            var factor = (double)quantity / defaultQty;
+            var factor = quantity / recipe.Serving.Quantity;
             calories = recipe.Calories * factor;
             protein = recipe.Protein * factor;
             carbs = recipe.Carbs * factor;
@@ -27,7 +26,7 @@ internal static class FoodLogNotionMapper
         }
         else if (product is not null)
         {
-            var factor = (double)quantity / (double)product.Serving.Quantity;
+            var factor = quantity / product.Serving.Quantity;
             calories = product.Calories * factor;
             protein = product.Protein * factor;
             carbs = product.Carbs * factor;
@@ -65,7 +64,7 @@ internal static class FoodLogNotionMapper
         RecipeId = RichTextProperty(foodLog.RecipeId ?? string.Empty),
         ProductId = RichTextProperty(foodLog.ProductId ?? string.Empty),
         ServingUnit = SelectProperty(foodLog.ServingUnit.ToString()),
-        Quantity = NumberProperty((double)foodLog.Quantity)
+        Quantity = NumberProperty(foodLog.Quantity)
     };
 
     private static object DateProperty(DateOnly date) => new { date = new { start = date.ToString("yyyy-MM-dd") } };

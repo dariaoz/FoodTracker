@@ -8,5 +8,5 @@ public class FoodLogRequest
     public string? RecipeId { get; init; }
     public string? ProductId { get; init; }
     public ServingUnit ServingUnit { get; init; }
-    public decimal Quantity { get; init; }
+    public double Quantity { get; init; }
 }

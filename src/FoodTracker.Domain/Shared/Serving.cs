@@ -1,3 +1,3 @@
 namespace FoodTracker.Domain.Shared;
 
-public record Serving(ServingUnit Unit, decimal Quantity);
+public record Serving(ServingUnit Unit, double Quantity);

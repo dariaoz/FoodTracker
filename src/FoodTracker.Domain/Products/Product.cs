@@ -12,11 +12,11 @@ public class Product : IHaveMacronutrients, IMacroSource, IHaveId
     public double Carbs { get; init; }
     public double Fat { get; init; }
 
-    public Serving Serving => new(ServingUnit, 100m);
+    public Serving Serving => new(ServingUnit, 100.0);
 
-    public MacroSnapshot ComputeMacros(decimal quantity)
+    public MacroSnapshot ComputeMacros(double quantity)
     {
-        double ratio = (double)quantity / 100.0;
+        double ratio = quantity / 100.0;
         return new(Calories * ratio, Protein * ratio, Carbs * ratio, Fat * ratio);
     }
 }

@@ -13,11 +13,11 @@ public class Recipe : IHaveMacronutrients, IMacroSource, IHaveId
     public double Carbs { get; init; }
     public double Fat { get; init; }
 
-    public Serving Serving => new(ServingUnit, ServingUnit == ServingUnit.Portion ? 1m : 100m);
+    public Serving Serving => new(ServingUnit, ServingUnit == ServingUnit.Portion ? 1.0 : 100.0);
 
-    public MacroSnapshot ComputeMacros(decimal quantity)
+    public MacroSnapshot ComputeMacros(double quantity)
     {
-        double ratio = ServingUnit == ServingUnit.Portion ? (double)quantity : (double)quantity / 100.0;
+        double ratio = ServingUnit == ServingUnit.Portion ? quantity : quantity / 100.0;
         return new(Calories * ratio, Protein * ratio, Carbs * ratio, Fat * ratio);
     }
 }
