@@ -2,6 +2,7 @@ using FoodTracker.Application.FoodLogs.Interfaces;
 using FoodTracker.Application.Shared;
 using FoodTracker.Domain.FoodLogs;
 using FoodTracker.Domain.Shared;
+using Microsoft.Extensions.Logging;
 
 namespace FoodTracker.Application.FoodLogs;
 
@@ -9,11 +10,13 @@ public class FoodLogService : IFoodLogService
 {
     private readonly INotionContext _context;
     private readonly IValidator<FoodLog> _validator;
+    private readonly ILogger<FoodLogService> _logger;
 
-    public FoodLogService(INotionContext context, IValidator<FoodLog> validator)
+    public FoodLogService(INotionContext context, IValidator<FoodLog> validator, ILogger<FoodLogService> logger)
     {
         _context = context;
         _validator = validator;
+        _logger = logger;
     }
 
     public Task<IList<FoodLog>> GetAllAsync(CancellationToken ct = default) => _context.FoodLogs.GetAllAsync(ct);
@@ -24,14 +27,14 @@ public class FoodLogService : IFoodLogService
     {
         _validator.Validate(foodLog);
 
-        IMacroSource source = await ResolveSourceAsync(foodLog, ct);
+        (IMacroSource source, string sourceType, string sourceId) = await ResolveSourceAsync(foodLog, ct);
 
         if (foodLog.ServingUnit != source.ServingUnit)
             throw new ValidationException([$"ServingUnit must match the source's ServingUnit ({source.ServingUnit})."]);
 
         MacroSnapshot macros = source.ComputeMacros(foodLog.Quantity);
 
-        return await _context.FoodLogs.CreateAsync(new FoodLog
+        FoodLog created = await _context.FoodLogs.CreateAsync(new FoodLog
         {
             Id = foodLog.Id,
             Date = foodLog.Date,
@@ -44,14 +47,26 @@ public class FoodLogService : IFoodLogService
             Carbs = macros.Carbs,
             Fat = macros.Fat
         }, ct);
+        _logger.LogInformation("Created food log {Id} for {SourceType} {SourceId} on {Date}", created.Id, sourceType, sourceId, foodLog.Date);
+        return created;
     }
 
-    public Task DeleteAsync(string id, CancellationToken ct = default) => _context.FoodLogs.DeleteAsync(id, ct);
+    public async Task DeleteAsync(string id, CancellationToken ct = default)
+    {
+        await _context.FoodLogs.DeleteAsync(id, ct);
+        _logger.LogInformation("Deleted food log {Id}", id);
+    }
 
-    private async Task<IMacroSource> ResolveSourceAsync(FoodLog foodLog, CancellationToken ct) =>
-        foodLog.ProductId is not null
-            ? await _context.Products.GetByIdAsync(foodLog.ProductId, ct)
-                ?? throw new ValidationException([$"Product '{foodLog.ProductId}' not found."])
-            : await _context.Recipes.GetByIdAsync(foodLog.RecipeId!, ct)
-                ?? throw new ValidationException([$"Recipe '{foodLog.RecipeId}' not found."]);
+    private async Task<(IMacroSource Source, string SourceType, string SourceId)> ResolveSourceAsync(FoodLog foodLog, CancellationToken ct)
+    {
+        bool isProduct = foodLog.ProductId is not null;
+        string sourceType = isProduct ? "product" : "recipe";
+        string sourceId = isProduct ? foodLog.ProductId! : foodLog.RecipeId!;
+
+        IMacroSource source = isProduct
+            ? await _context.Products.GetByIdAsync(sourceId, ct) ?? throw new ValidationException([$"Product '{sourceId}' not found."])
+            : await _context.Recipes.GetByIdAsync(sourceId, ct) ?? throw new ValidationException([$"Recipe '{sourceId}' not found."]);
+
+        return (source, sourceType, sourceId);
+    }
 }

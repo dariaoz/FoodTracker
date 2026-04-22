@@ -2,6 +2,7 @@ using System.Net.Http.Headers;
 using System.Text;
 using System.Text.Json;
 using FoodTracker.Infrastructure.Configuration;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
 namespace FoodTracker.Infrastructure.Shared;
@@ -9,11 +10,13 @@ namespace FoodTracker.Infrastructure.Shared;
 internal class NotionClient : INotionClient
 {
     private readonly HttpClient _http;
+    private readonly ILogger<NotionClient> _logger;
     private static readonly JsonSerializerOptions _jsonOptions = new() { PropertyNameCaseInsensitive = true };
 
-    public NotionClient(HttpClient http, IOptions<NotionOptions> options)
+    public NotionClient(HttpClient http, IOptions<NotionOptions> options, ILogger<NotionClient> logger)
     {
         _http = http;
+        _logger = logger;
         _http.DefaultRequestHeaders.Authorization =
             new AuthenticationHeaderValue("Bearer", options.Value.ApiKey);
     }
@@ -26,12 +29,14 @@ internal class NotionClient : INotionClient
 
         do
         {
+            _logger.LogDebug("POST databases/{DatabaseId}/query cursor={Cursor}", databaseId, cursor ?? "start");
             string response = await PostAsync($"databases/{databaseId}/query", BuildQueryBody(filter, cursor), ct);
             NotionDatabase page = Deserialize<NotionDatabase>(response);
             allResults.AddRange(page.Results);
             cursor = page.HasMore ? page.NextCursor : null;
         } while (cursor is not null);
 
+        _logger.LogDebug("QueryDatabase {DatabaseId} returned {Count} results", databaseId, allResults.Count);
         return new NotionDatabase { Results = allResults };
     }
 
@@ -45,6 +50,7 @@ internal class NotionClient : INotionClient
 
     public async Task<NotionPage> GetPageAsync(string pageId, CancellationToken ct = default)
     {
+        _logger.LogDebug("GET pages/{PageId}", pageId);
         HttpResponseMessage response = await _http.GetAsync($"pages/{pageId}", ct);
         EnsureSuccess(response);
         string json = await response.Content.ReadAsStringAsync(ct);
@@ -53,6 +59,7 @@ internal class NotionClient : INotionClient
 
     public async Task<NotionPage> CreatePageAsync(string databaseId, object properties, CancellationToken ct = default)
     {
+        _logger.LogDebug("POST pages (database={DatabaseId})", databaseId);
         var payload = new { parent = new { database_id = databaseId }, properties };
         string response = await PostAsync("pages", payload, ct);
         return Deserialize<NotionPage>(response);
@@ -60,6 +67,7 @@ internal class NotionClient : INotionClient
 
     public async Task<NotionPage> UpdatePageAsync(string pageId, object properties, CancellationToken ct = default)
     {
+        _logger.LogDebug("PATCH pages/{PageId}", pageId);
         var payload = new { properties };
         string json = JsonSerializer.Serialize(payload);
         using var content = new StringContent(json, Encoding.UTF8, "application/json");
@@ -71,6 +79,7 @@ internal class NotionClient : INotionClient
 
     public async Task ArchivePageAsync(string pageId, CancellationToken ct = default)
     {
+        _logger.LogDebug("PATCH pages/{PageId} (archive)", pageId);
         var payload = new { in_trash = true };
         string json = JsonSerializer.Serialize(payload);
         using var content = new StringContent(json, Encoding.UTF8, "application/json");
@@ -87,10 +96,14 @@ internal class NotionClient : INotionClient
         return await response.Content.ReadAsStringAsync(ct);
     }
 
-    private static void EnsureSuccess(HttpResponseMessage response)
+    private void EnsureSuccess(HttpResponseMessage response)
     {
         if (!response.IsSuccessStatusCode)
+        {
+            _logger.LogWarning("Notion API error: {StatusCode} {Reason} for {Method} {Path}",
+                (int)response.StatusCode, response.ReasonPhrase, response.RequestMessage?.Method, response.RequestMessage?.RequestUri?.PathAndQuery);
             throw new HttpRequestException($"Notion API error: {(int)response.StatusCode} {response.ReasonPhrase}");
+        }
     }
 
     private static T Deserialize<T>(string json) =>

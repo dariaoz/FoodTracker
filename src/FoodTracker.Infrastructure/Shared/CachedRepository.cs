@@ -3,6 +3,7 @@ using FoodTracker.Application.Shared;
 using FoodTracker.Domain.Shared;
 using FoodTracker.Infrastructure.Configuration;
 using Microsoft.Extensions.Caching.Distributed;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
 namespace FoodTracker.Infrastructure.Shared;
@@ -10,7 +11,8 @@ namespace FoodTracker.Infrastructure.Shared;
 internal class CachedRepository<T>(
     IRepository<T> inner,
     IDistributedCache cache,
-    IOptions<CacheOptions> options) : IRepository<T> where T : IHaveId
+    IOptions<CacheOptions> options,
+    ILogger<CachedRepository<T>> logger) : IRepository<T> where T : IHaveId
 {
     private readonly string _prefix = typeof(T).Name.ToLower();
     private readonly DistributedCacheEntryOptions _cacheOptions = new()
@@ -23,8 +25,12 @@ internal class CachedRepository<T>(
         string key = $"{_prefix}:all";
         string? cached = await cache.GetStringAsync(key, ct);
         if (cached is not null)
+        {
+            logger.LogDebug("Cache hit for {Key}", key);
             return JsonSerializer.Deserialize<List<T>>(cached)!;
+        }
 
+        logger.LogDebug("Cache miss for {Key}", key);
         IList<T> items = await inner.GetAllAsync(ct);
         await cache.SetStringAsync(key, JsonSerializer.Serialize(items), _cacheOptions, ct);
         return items;
@@ -35,8 +41,12 @@ internal class CachedRepository<T>(
         string key = $"{_prefix}:{id}";
         string? cached = await cache.GetStringAsync(key, ct);
         if (cached is not null)
+        {
+            logger.LogDebug("Cache hit for {Key}", key);
             return JsonSerializer.Deserialize<T>(cached);
+        }
 
+        logger.LogDebug("Cache miss for {Key}", key);
         T? item = await inner.GetByIdAsync(id, ct);
         if (item is not null)
             await cache.SetStringAsync(key, JsonSerializer.Serialize(item), _cacheOptions, ct);
@@ -58,6 +68,7 @@ internal class CachedRepository<T>(
 
     private async Task InvalidateAsync(string id, CancellationToken ct)
     {
+        logger.LogDebug("Invalidating cache for {Prefix}:{Id} and {Prefix}:all", _prefix, id, _prefix);
         await cache.RemoveAsync($"{_prefix}:{id}", ct);
         await cache.RemoveAsync($"{_prefix}:all", ct);
     }
