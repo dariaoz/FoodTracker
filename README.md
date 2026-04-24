@@ -70,7 +70,7 @@ All endpoints return `400` for validation errors and `404` when an entity is not
 | GET | `/products` | List all products |
 | GET | `/products/{id}` | Get product by ID |
 | POST | `/products` | Create product |
-| DELETE | `/products/{id}` | Archive product |
+| DELETE | `/products/{id}` | Delete product |
 
 `ServingUnit` must be `Gram` or `Milliliter` (not `Portion`).
 
@@ -81,7 +81,7 @@ All endpoints return `400` for validation errors and `404` when an entity is not
 | GET | `/recipes` | List all recipes |
 | GET | `/recipes/{id}` | Get recipe by ID |
 | POST | `/recipes` | Create recipe |
-| DELETE | `/recipes/{id}` | Archive recipe |
+| DELETE | `/recipes/{id}` | Delete recipe |
 
 ### Food Log — `GET|POST|DELETE /foodlog`
 
@@ -90,7 +90,7 @@ All endpoints return `400` for validation errors and `404` when an entity is not
 | GET | `/foodlog` | List all entries (optional `?date=yyyy-MM-dd` filter) |
 | GET | `/foodlog/{id}` | Get entry by ID |
 | POST | `/foodlog` | Create entry |
-| DELETE | `/foodlog/{id}` | Archive entry |
+| DELETE | `/foodlog/{id}` | Delete entry |
 
 A food log entry links to either a product **or** a recipe (never both). Macronutrients are computed from the linked source at write time and stored as a snapshot — editing a product's macros later does not affect existing log entries.
 

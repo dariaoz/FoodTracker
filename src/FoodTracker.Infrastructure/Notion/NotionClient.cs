@@ -75,10 +75,10 @@ internal class NotionClient : INotionClient
         return Deserialize<NotionPage>(responseJson);
     }
 
-    public async Task ArchivePageAsync(string databaseId, string pageId, CancellationToken ct = default)
+    public async Task DeletePageAsync(string databaseId, string pageId, CancellationToken ct = default)
     {
         string dataSourceId = await GetDataSourceIdAsync(databaseId, ct);
-        _logger.LogDebug("PATCH pages/{PageId} (archive, data_source={DataSourceId})", pageId, dataSourceId);
+        _logger.LogDebug("PATCH pages/{PageId} (delete, data_source={DataSourceId})", pageId, dataSourceId);
         var payload = new { in_trash = true };
         string json = JsonSerializer.Serialize(payload);
         using var content = new StringContent(json, Encoding.UTF8, "application/json");

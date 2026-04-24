@@ -48,5 +48,5 @@ internal class FoodLogRepository : IFoodLogRepository
     }
 
     public async Task DeleteAsync(string pageId, CancellationToken ct = default) =>
-        await _client.ArchivePageAsync(_databaseId, pageId, ct);
+        await _client.DeletePageAsync(_databaseId, pageId, ct);
 }
