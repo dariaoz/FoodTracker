@@ -1,4 +1,4 @@
-namespace FoodTracker.Infrastructure.Shared;
+namespace FoodTracker.Infrastructure.Notion;
 
 internal static class NotionPropertyHelper
 {
@@ -37,4 +37,9 @@ internal static class NotionPropertyHelper
 
         return DateOnly.Parse(prop.Date.Start);
     }
+
+    public static string GetRelation(Dictionary<string, NotionPropertyValue> props, string key) =>
+        props.TryGetValue(key, out NotionPropertyValue? prop)
+            ? prop.Relation?.FirstOrDefault()?.Id ?? string.Empty
+            : string.Empty;
 }

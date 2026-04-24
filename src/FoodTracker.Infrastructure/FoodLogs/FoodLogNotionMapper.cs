@@ -1,78 +1,57 @@
 using FoodTracker.Domain.FoodLogs;
-using FoodTracker.Domain.Products;
-using FoodTracker.Domain.Recipes;
 using FoodTracker.Domain.Shared;
+using FoodTracker.Infrastructure.Notion;
 using FoodTracker.Infrastructure.Shared;
 
 namespace FoodTracker.Infrastructure.FoodLogs;
 
 internal static class FoodLogNotionMapper
 {
-    public static FoodLog ToEntity(NotionPage page, Product? product, Recipe? recipe)
+    public static FoodLog ToEntity(NotionPage page)
     {
         Dictionary<string, NotionPropertyValue> p = page.Properties;
-        double quantity = NotionPropertyHelper.GetDouble(p, "Quantity");
-        ServingUnit servingUnit = NotionPropertyHelper.GetEnum<ServingUnit>(p, "ServingUnit");
-
-        double calories, protein, carbs, fat;
-
-        if (recipe is not null)
-        {
-            var factor = quantity / recipe.Serving.Quantity;
-            calories = recipe.Calories * factor;
-            protein = recipe.Protein * factor;
-            carbs = recipe.Carbs * factor;
-            fat = recipe.Fat * factor;
-        }
-        else if (product is not null)
-        {
-            var factor = quantity / product.Serving.Quantity;
-            calories = product.Calories * factor;
-            protein = product.Protein * factor;
-            carbs = product.Carbs * factor;
-            fat = product.Fat * factor;
-        }
-        else
-        {
-            calories = protein = carbs = fat = 0;
-        }
-
         return new FoodLog
         {
             Id = page.Id,
             Date = NotionPropertyHelper.GetDate(p, "Date"),
-            RecipeId = NotionPropertyHelper.GetString(p, "RecipeId"),
-            ProductId = NotionPropertyHelper.GetString(p, "ProductId"),
-            ServingUnit = servingUnit,
-            Quantity = quantity,
-            Calories = calories,
-            Protein = protein,
-            Carbs = carbs,
-            Fat = fat
+            RecipeId = NullIfEmpty(NotionPropertyHelper.GetRelation(p, "Recipe")),
+            ProductId = NullIfEmpty(NotionPropertyHelper.GetRelation(p, "Product")),
+            ServingUnit = NotionPropertyHelper.GetEnum<ServingUnit>(p, "Serving Unit"),
+            Quantity = NotionPropertyHelper.GetDouble(p, "Serving"),
+            Calories = NotionPropertyHelper.GetDouble(p, "Calories"),
+            Protein = NotionPropertyHelper.GetDouble(p, "Proteins (g)"),
+            Carbs = NotionPropertyHelper.GetDouble(p, "Carbonates (g)"),
+            Fat = NotionPropertyHelper.GetDouble(p, "Fat (g)")
         };
     }
 
     public static string GetLinkedRecipeId(Dictionary<string, NotionPropertyValue> props) =>
-        NotionPropertyHelper.GetString(props, "RecipeId");
+        NotionPropertyHelper.GetRelation(props, "Recipe");
 
     public static string GetLinkedProductId(Dictionary<string, NotionPropertyValue> props) =>
-        NotionPropertyHelper.GetString(props, "ProductId");
+        NotionPropertyHelper.GetRelation(props, "Product");
 
-    public static object ToNotionProperties(FoodLog foodLog) => new
+    public static Dictionary<string, object> ToNotionProperties(FoodLog foodLog) => new()
     {
-        Date = DateProperty(foodLog.Date),
-        RecipeId = RichTextProperty(foodLog.RecipeId ?? string.Empty),
-        ProductId = RichTextProperty(foodLog.ProductId ?? string.Empty),
-        ServingUnit = SelectProperty(foodLog.ServingUnit.ToString()),
-        Quantity = NumberProperty(foodLog.Quantity)
+        ["Date"] = DateProperty(foodLog.Date),
+        ["Recipe"] = RelationProperty(foodLog.RecipeId),
+        ["Product"] = RelationProperty(foodLog.ProductId),
+        ["Serving Unit"] = SelectProperty(foodLog.ServingUnit.ToString()),
+        ["Serving"] = NumberProperty(foodLog.Quantity),
+        ["Calories"] = NumberProperty(foodLog.Calories),
+        ["Proteins (g)"] = NumberProperty(foodLog.Protein),
+        ["Carbonates (g)"] = NumberProperty(foodLog.Carbs),
+        ["Fat (g)"] = NumberProperty(foodLog.Fat)
     };
 
+    private static string? NullIfEmpty(string value) => string.IsNullOrEmpty(value) ? null : value;
+
     private static object DateProperty(DateOnly date) => new { date = new { start = date.ToString("yyyy-MM-dd") } };
-
-    private static object RichTextProperty(string value) =>
-        new { rich_text = new[] { new { text = new { content = value } } } };
-
+    private static object SelectProperty(string value) => new { select = new { name = value } };
     private static object NumberProperty(double value) => new { number = value };
 
-    private static object SelectProperty(string value) => new { select = new { name = value } };
+    private static object RelationProperty(string? pageId) =>
+        string.IsNullOrEmpty(pageId)
+            ? new { relation = Array.Empty<object>() }
+            : new { relation = new[] { new { id = pageId } } };
 }

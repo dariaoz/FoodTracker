@@ -3,7 +3,7 @@ using FoodTracker.Application.Products.Interfaces;
 using FoodTracker.Application.Recipes.Interfaces;
 using FoodTracker.Application.Shared;
 
-namespace FoodTracker.Infrastructure.Shared;
+namespace FoodTracker.Infrastructure.Notion;
 
 internal class NotionContext : INotionContext
 {

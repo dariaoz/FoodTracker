@@ -1,7 +1,7 @@
 using FoodTracker.Application.Recipes.Interfaces;
 using FoodTracker.Domain.Recipes;
 using FoodTracker.Infrastructure.Configuration;
-using FoodTracker.Infrastructure.Shared;
+using FoodTracker.Infrastructure.Notion;
 using Microsoft.Extensions.Options;
 
 namespace FoodTracker.Infrastructure.Recipes;
@@ -36,5 +36,5 @@ internal class RecipeRepository : IRecipeRepository
     }
 
     public async Task DeleteAsync(string pageId, CancellationToken ct = default) =>
-        await _client.ArchivePageAsync(pageId, ct);
+        await _client.ArchivePageAsync(_databaseId, pageId, ct);
 }

@@ -1,6 +1,6 @@
 using FoodTracker.Domain.Products;
 using FoodTracker.Domain.Shared;
-using FoodTracker.Infrastructure.Shared;
+using FoodTracker.Infrastructure.Notion;
 
 namespace FoodTracker.Infrastructure.Products;
 
@@ -13,7 +13,7 @@ internal static class ProductNotionMapper
         {
             Id = page.Id,
             Name = NotionPropertyHelper.GetString(p, "Name"),
-            ServingUnit = Enum.TryParse<ServingUnit>(NotionPropertyHelper.GetSelect(p, "ServingUnit"), ignoreCase: true, out var unit)
+            ServingUnit = Enum.TryParse<ServingUnit>(NotionPropertyHelper.GetSelect(p, "Serving Unit"), ignoreCase: true, out var unit)
                 ? unit
                 : ServingUnit.Gram,
             Calories = NotionPropertyHelper.GetDouble(p, "Calories"),
@@ -23,14 +23,14 @@ internal static class ProductNotionMapper
         };
     }
 
-    public static object ToNotionProperties(Product product) => new
+    public static Dictionary<string, object> ToNotionProperties(Product product) => new()
     {
-        Name = TitleProperty(product.Name),
-        ServingUnit = SelectProperty(product.ServingUnit.ToString()),
-        Calories = NumberProperty(product.Calories),
-        Protein = NumberProperty(product.Protein),
-        Carbs = NumberProperty(product.Carbs),
-        Fat = NumberProperty(product.Fat)
+        ["Name"] = TitleProperty(product.Name),
+        ["Serving Unit"] = SelectProperty(product.ServingUnit.ToString().ToLowerInvariant()),
+        ["Calories"] = NumberProperty(product.Calories),
+        ["Protein"] = NumberProperty(product.Protein),
+        ["Carbs"] = NumberProperty(product.Carbs),
+        ["Fat"] = NumberProperty(product.Fat)
     };
 
     private static object TitleProperty(string value) => new { title = new[] { new { text = new { content = value } } } };

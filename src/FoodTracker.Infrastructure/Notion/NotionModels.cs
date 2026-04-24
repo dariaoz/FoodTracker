@@ -1,6 +1,6 @@
 using System.Text.Json.Serialization;
 
-namespace FoodTracker.Infrastructure.Shared;
+namespace FoodTracker.Infrastructure.Notion;
 
 internal class NotionDatabase
 {
@@ -42,6 +42,9 @@ internal class NotionPropertyValue
 
     [JsonPropertyName("date")]
     public NotionDate? Date { get; set; }
+
+    [JsonPropertyName("relation")]
+    public List<NotionRelationItem>? Relation { get; set; }
 }
 
 internal class NotionRichText
@@ -60,4 +63,22 @@ internal class NotionDate
 {
     [JsonPropertyName("start")]
     public string Start { get; set; } = string.Empty;
+}
+
+internal class NotionRelationItem
+{
+    [JsonPropertyName("id")]
+    public string Id { get; set; } = string.Empty;
+}
+
+internal class NotionDatabaseObject
+{
+    [JsonPropertyName("data_sources")]
+    public List<NotionDataSourceRef> DataSources { get; set; } = [];
+}
+
+internal class NotionDataSourceRef
+{
+    [JsonPropertyName("id")]
+    public string Id { get; set; } = string.Empty;
 }

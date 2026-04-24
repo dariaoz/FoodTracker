@@ -1,4 +1,4 @@
-namespace FoodTracker.Infrastructure.Shared;
+namespace FoodTracker.Infrastructure.Notion;
 
 internal interface INotionClient
 {
@@ -6,5 +6,5 @@ internal interface INotionClient
     Task<NotionPage> GetPageAsync(string pageId, CancellationToken ct = default);
     Task<NotionPage> CreatePageAsync(string databaseId, object properties, CancellationToken ct = default);
     Task<NotionPage> UpdatePageAsync(string pageId, object properties, CancellationToken ct = default);
-    Task ArchivePageAsync(string pageId, CancellationToken ct = default);
+    Task ArchivePageAsync(string databaseId, string pageId, CancellationToken ct = default);
 }

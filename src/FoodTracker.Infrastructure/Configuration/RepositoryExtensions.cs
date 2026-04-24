@@ -3,9 +3,9 @@ using FoodTracker.Application.Products.Interfaces;
 using FoodTracker.Application.Recipes.Interfaces;
 using FoodTracker.Application.Shared;
 using FoodTracker.Infrastructure.FoodLogs;
+using FoodTracker.Infrastructure.Notion;
 using FoodTracker.Infrastructure.Products;
 using FoodTracker.Infrastructure.Recipes;
-using FoodTracker.Infrastructure.Shared;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace FoodTracker.Infrastructure.Configuration;
