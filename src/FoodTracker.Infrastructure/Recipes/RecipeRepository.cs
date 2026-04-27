@@ -19,19 +19,19 @@ internal class RecipeRepository : IRecipeRepository
 
     public async Task<IList<Recipe>> GetAllAsync(CancellationToken ct = default)
     {
-        NotionDatabase db = await _client.QueryDatabaseAsync(_databaseId, ct: ct);
+        var db = await _client.QueryDatabaseAsync(_databaseId, ct: ct);
         return db.Results.Select(RecipeNotionMapper.ToEntity).ToList();
     }
 
     public async Task<Recipe?> GetByIdAsync(string pageId, CancellationToken ct = default)
     {
-        NotionPage page = await _client.GetPageAsync(pageId, ct);
+        var page = await _client.GetPageAsync(pageId, ct);
         return RecipeNotionMapper.ToEntity(page);
     }
 
     public async Task<Recipe> CreateAsync(Recipe entity, CancellationToken ct = default)
     {
-        NotionPage page = await _client.CreatePageAsync(_databaseId, RecipeNotionMapper.ToNotionProperties(entity), ct);
+        var page = await _client.CreatePageAsync(_databaseId, RecipeNotionMapper.ToNotionProperties(entity), ct);
         return RecipeNotionMapper.ToEntity(page);
     }
 

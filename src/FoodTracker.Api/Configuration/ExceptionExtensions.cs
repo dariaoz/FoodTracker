@@ -1,7 +1,6 @@
-using FoodTracker.Infrastructure.ExceptionHandling;
-using Microsoft.Extensions.DependencyInjection;
+using FoodTracker.Api.ExceptionHandling;
 
-namespace FoodTracker.Infrastructure.Configuration;
+namespace FoodTracker.Api.Configuration;
 
 internal static class ExceptionExtensions
 {
@@ -9,6 +8,7 @@ internal static class ExceptionExtensions
     {
         services.AddSingleton<IExceptionHandlerStrategy, ValidationExceptionStrategy>();
         services.AddSingleton<IExceptionHandlerStrategy, UnhandledExceptionStrategy>();
+
         services.AddExceptionHandler<GlobalExceptionHandler>();
     }
 }

@@ -27,14 +27,14 @@ public class FoodLogService : IFoodLogService
     {
         _validator.Validate(foodLog);
 
-        (IMacroSource source, string sourceType, string sourceId) = await ResolveSourceAsync(foodLog, ct);
+        var (source, sourceType, sourceId) = await ResolveSourceAsync(foodLog, ct);
 
         if (foodLog.ServingUnit != source.ServingUnit)
             throw new ValidationException([$"ServingUnit must match the source's ServingUnit ({source.ServingUnit})."]);
 
-        MacroSnapshot macros = source.ComputeMacros(foodLog.Quantity);
+        var macros = source.ComputeMacros(foodLog.Quantity);
 
-        FoodLog created = await _context.FoodLogs.CreateAsync(new FoodLog
+        var created = await _context.FoodLogs.CreateAsync(new()
         {
             Id = foodLog.Id,
             Date = foodLog.Date,
@@ -59,9 +59,9 @@ public class FoodLogService : IFoodLogService
 
     private async Task<(IMacroSource Source, string SourceType, string SourceId)> ResolveSourceAsync(FoodLog foodLog, CancellationToken ct)
     {
-        bool isProduct = foodLog.ProductId is not null;
-        string sourceType = isProduct ? "product" : "recipe";
-        string sourceId = isProduct ? foodLog.ProductId! : foodLog.RecipeId!;
+        var isProduct = foodLog.ProductId is not null;
+        var sourceType = isProduct ? "product" : "recipe";
+        var sourceId = isProduct ? foodLog.ProductId! : foodLog.RecipeId!;
 
         IMacroSource source = isProduct
             ? await _context.Products.GetByIdAsync(sourceId, ct) ?? throw new ValidationException([$"Product '{sourceId}' not found."])

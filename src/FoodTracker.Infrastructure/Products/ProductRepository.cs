@@ -19,19 +19,19 @@ internal class ProductRepository : IProductRepository
 
     public async Task<IList<Product>> GetAllAsync(CancellationToken ct = default)
     {
-        NotionDatabase db = await _client.QueryDatabaseAsync(_databaseId, ct: ct);
+        var db = await _client.QueryDatabaseAsync(_databaseId, ct: ct);
         return db.Results.Select(ProductNotionMapper.ToEntity).ToList();
     }
 
     public async Task<Product?> GetByIdAsync(string pageId, CancellationToken ct = default)
     {
-        NotionPage page = await _client.GetPageAsync(pageId, ct);
+        var page = await _client.GetPageAsync(pageId, ct);
         return ProductNotionMapper.ToEntity(page);
     }
 
     public async Task<Product> CreateAsync(Product entity, CancellationToken ct = default)
     {
-        NotionPage page = await _client.CreatePageAsync(_databaseId, ProductNotionMapper.ToNotionProperties(entity), ct);
+        var page = await _client.CreatePageAsync(_databaseId, ProductNotionMapper.ToNotionProperties(entity), ct);
         return ProductNotionMapper.ToEntity(page);
     }
 

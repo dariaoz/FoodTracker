@@ -1,7 +1,6 @@
 using Microsoft.AspNetCore.Diagnostics;
-using Microsoft.AspNetCore.Http;
 
-namespace FoodTracker.Infrastructure.ExceptionHandling;
+namespace FoodTracker.Api.ExceptionHandling;
 
 internal class GlobalExceptionHandler : IExceptionHandler
 {
@@ -14,7 +13,7 @@ internal class GlobalExceptionHandler : IExceptionHandler
 
     public async ValueTask<bool> TryHandleAsync(HttpContext context, Exception exception, CancellationToken ct)
     {
-        IExceptionHandlerStrategy? strategy = _strategies.FirstOrDefault(s => s.CanHandle(exception));
+        var strategy = _strategies.FirstOrDefault(s => s.CanHandle(exception));
         if (strategy is null)
         {
             return false;

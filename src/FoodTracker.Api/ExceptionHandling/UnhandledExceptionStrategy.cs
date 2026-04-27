@@ -1,8 +1,6 @@
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
 
-namespace FoodTracker.Infrastructure.ExceptionHandling;
+namespace FoodTracker.Api.ExceptionHandling;
 
 internal class UnhandledExceptionStrategy : IExceptionHandlerStrategy
 {

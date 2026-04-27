@@ -25,71 +25,69 @@ internal class NotionClient : INotionClient
         _cache = cache;
         _logger = logger;
         _http.DefaultRequestHeaders.Authorization =
-            new AuthenticationHeaderValue("Bearer", options.Value.ApiKey);
+            new("Bearer", options.Value.ApiKey);
     }
 
     public async Task<NotionDatabase> QueryDatabaseAsync(string databaseId, object? filter = null,
         CancellationToken ct = default)
     {
-        string dataSourceId = await GetDataSourceIdAsync(databaseId, ct);
+        var dataSourceId = await GetDataSourceIdAsync(databaseId, ct);
 
         var allResults = new List<NotionPage>();
         string? cursor = null;
         do
         {
-            NotionDatabase batch = await QueryDataSourceAsync(dataSourceId, filter, cursor, ct);
+            var batch = await QueryDataSourceAsync(dataSourceId, filter, cursor, ct);
             allResults.AddRange(batch.Results);
             cursor = batch.HasMore ? batch.NextCursor : null;
         } while (cursor is not null);
 
         _logger.LogDebug("QueryDatabaseAsync {DatabaseId} -> {DataSourceId}: {Count} results",
             databaseId, dataSourceId, allResults.Count);
-        return new NotionDatabase { Results = allResults };
+        return new() { Results = allResults };
     }
 
     public async Task<NotionPage> GetPageAsync(string pageId, CancellationToken ct = default)
     {
         _logger.LogDebug("GET pages/{PageId}", pageId);
-        HttpResponseMessage response = await _http.GetAsync($"pages/{pageId}", ct);
-        string json = await ReadAndEnsureSuccessAsync(response, ct);
-        return Deserialize<NotionPage>(json);
+        var response = await _http.GetAsync($"pages/{pageId}", ct);
+        return await ReadAndEnsureSuccessAsync<NotionPage>(response, ct);
     }
 
     public async Task<NotionPage> CreatePageAsync(string databaseId, object properties, CancellationToken ct = default)
     {
-        string dataSourceId = await GetDataSourceIdAsync(databaseId, ct);
+        var dataSourceId = await GetDataSourceIdAsync(databaseId, ct);
         _logger.LogDebug("POST pages (data_source={DataSourceId})", dataSourceId);
         var payload = new { parent = new { data_source_id = dataSourceId, type = "data_source_id" }, properties };
-        string response = await PostAsync("pages", payload, ct);
-        return Deserialize<NotionPage>(response);
+        return await PostAsync<NotionPage>("pages", payload, ct);
     }
 
     public async Task<NotionPage> UpdatePageAsync(string pageId, object properties, CancellationToken ct = default)
     {
         _logger.LogDebug("PATCH pages/{PageId}", pageId);
         var payload = new { properties };
-        string json = JsonSerializer.Serialize(payload);
+        var json = JsonSerializer.Serialize(payload);
         using var content = new StringContent(json, Encoding.UTF8, "application/json");
-        HttpResponseMessage response = await _http.PatchAsync($"pages/{pageId}", content, ct);
-        string responseJson = await ReadAndEnsureSuccessAsync(response, ct);
-        return Deserialize<NotionPage>(responseJson);
+        var response = await _http.PatchAsync($"pages/{pageId}", content, ct);
+        return await ReadAndEnsureSuccessAsync<NotionPage>(response, ct);
     }
 
     public async Task DeletePageAsync(string databaseId, string pageId, CancellationToken ct = default)
     {
-        string dataSourceId = await GetDataSourceIdAsync(databaseId, ct);
+        var dataSourceId = await GetDataSourceIdAsync(databaseId, ct);
         _logger.LogDebug("PATCH pages/{PageId} (delete, data_source={DataSourceId})", pageId, dataSourceId);
         var payload = new { in_trash = true };
-        string json = JsonSerializer.Serialize(payload);
+
+        var json = JsonSerializer.Serialize(payload);
         using var content = new StringContent(json, Encoding.UTF8, "application/json");
-        HttpResponseMessage response = await _http.PatchAsync($"pages/{pageId}", content, ct);
+        var response = await _http.PatchAsync($"pages/{pageId}", content, ct);
         await ReadAndEnsureSuccessAsync(response, ct);
     }
 
     private async Task<string> GetDataSourceIdAsync(string databaseId, CancellationToken ct)
     {
-        string cacheKey = $"datasource:{databaseId}";
-        string? cached = await _cache.GetStringAsync(cacheKey, ct);
+        var cacheKey = $"datasource:{databaseId}";
+        var cached = await _cache.GetStringAsync(cacheKey, ct);
         if (cached is not null)
         {
             _logger.LogDebug("Cache hit for datasource:{DatabaseId}", databaseId);
@@ -97,11 +95,12 @@ internal class NotionClient : INotionClient
         }
 
         _logger.LogDebug("GET databases/{DatabaseId}", databaseId);
-        HttpResponseMessage response = await _http.GetAsync($"databases/{databaseId}", ct);
-        string json = await ReadAndEnsureSuccessAsync(response, ct);
-        NotionDatabaseObject db = Deserialize<NotionDatabaseObject>(json);
-        string dataSourceId = db.DataSources.FirstOrDefault()?.Id
-            ?? throw new InvalidOperationException($"No data source found for database {databaseId}");
+        var response = await _http.GetAsync($"databases/{databaseId}", ct);
+
+        var db = await ReadAndEnsureSuccessAsync<NotionDatabaseObject>(response, ct);
+
+        var dataSourceId = db.DataSources.FirstOrDefault()?.Id
+                           ?? throw new InvalidOperationException($"No data source found for database {databaseId}");
 
         await _cache.SetStringAsync(cacheKey, dataSourceId, _dataSourceIdCacheOptions, ct);
         return dataSourceId;
@@ -111,8 +110,7 @@ internal class NotionClient : INotionClient
         CancellationToken ct)
     {
         _logger.LogDebug("POST data_sources/{DataSourceId}/query cursor={Cursor}", dataSourceId, cursor ?? "start");
-        string response = await PostAsync($"data_sources/{dataSourceId}/query", BuildQueryBody(filter, cursor), ct);
-        return Deserialize<NotionDatabase>(response);
+        return await PostAsync<NotionDatabase>($"data_sources/{dataSourceId}/query", BuildQueryBody(filter, cursor), ct);
     }
 
     private static object BuildQueryBody(object? filter, string? cursor)
@@ -123,29 +121,32 @@ internal class NotionClient : INotionClient
         return new { result_type = "page", in_trash = false };
     }
 
-    private async Task<string> PostAsync(string path, object payload, CancellationToken ct)
+    private async Task<T> PostAsync<T>(string path, object payload, CancellationToken ct)
     {
-        string json = JsonSerializer.Serialize(payload);
+        var json = JsonSerializer.Serialize(payload);
         using var content = new StringContent(json, Encoding.UTF8, "application/json");
-        HttpResponseMessage response = await _http.PostAsync(path, content, ct);
-        return await ReadAndEnsureSuccessAsync(response, ct);
+        var response = await _http.PostAsync(path, content, ct);
+        return await ReadAndEnsureSuccessAsync<T>(response, ct);
+    }
+
+    private async Task<T> ReadAndEnsureSuccessAsync<T>(HttpResponseMessage response, CancellationToken ct)
+    {
+        var body = await ReadAndEnsureSuccessAsync(response, ct);
+        return JsonSerializer.Deserialize<T>(body, _jsonOptions)!;
     }
 
     private async Task<string> ReadAndEnsureSuccessAsync(HttpResponseMessage response, CancellationToken ct)
     {
-        string body = await response.Content.ReadAsStringAsync(ct);
-        if (!response.IsSuccessStatusCode)
+        var body = await response.Content.ReadAsStringAsync(ct);
+        if (response.IsSuccessStatusCode)
         {
-            _logger.LogWarning("Notion API error: {StatusCode} {Reason} for {Method} {Path} — {Body}",
-                (int)response.StatusCode, response.ReasonPhrase, response.RequestMessage?.Method,
-                response.RequestMessage?.RequestUri?.PathAndQuery, body);
-            throw new HttpRequestException(
-                $"Notion API error: {(int)response.StatusCode} {response.ReasonPhrase} — {body}");
+            return body;
         }
-        return body;
-    }
 
-    private static T Deserialize<T>(string json) =>
-        JsonSerializer.Deserialize<T>(json, _jsonOptions)
-        ?? throw new InvalidOperationException("Notion API returned null response.");
+        _logger.LogWarning("Notion API error: {StatusCode} {Reason} for {Method} {Path} — {Body}",
+            (int)response.StatusCode, response.ReasonPhrase, response.RequestMessage?.Method,
+            response.RequestMessage?.RequestUri?.PathAndQuery, body);
+        throw new HttpRequestException(
+            $"Notion API error: {(int)response.StatusCode} {response.ReasonPhrase} — {body}");
+    }
 }

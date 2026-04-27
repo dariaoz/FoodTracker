@@ -1,6 +1,4 @@
-using Microsoft.AspNetCore.Http;
-
-namespace FoodTracker.Infrastructure.ExceptionHandling;
+namespace FoodTracker.Api.ExceptionHandling;
 
 internal interface IExceptionHandlerStrategy
 {

@@ -11,7 +11,5 @@ public static class DependencyInjection
         services.AddNotionClient(configuration);
         services.AddRedisCache(configuration);
         services.AddNotionRepositories();
-
-        services.AddExceptionHandling();
     }
 }

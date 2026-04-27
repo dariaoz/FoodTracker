@@ -22,8 +22,8 @@ internal class CachedRepository<T>(
 
     public async Task<IList<T>> GetAllAsync(CancellationToken ct = default)
     {
-        string key = $"{_prefix}:all";
-        string? cached = await cache.GetStringAsync(key, ct);
+        var key = $"{_prefix}:all";
+        var cached = await cache.GetStringAsync(key, ct);
         if (cached is not null)
         {
             logger.LogDebug("Cache hit for {Key}", key);
@@ -38,8 +38,8 @@ internal class CachedRepository<T>(
 
     public async Task<T?> GetByIdAsync(string id, CancellationToken ct = default)
     {
-        string key = $"{_prefix}:{id}";
-        string? cached = await cache.GetStringAsync(key, ct);
+        var key = $"{_prefix}:{id}";
+        var cached = await cache.GetStringAsync(key, ct);
         if (cached is not null)
         {
             logger.LogDebug("Cache hit for {Key}", key);
@@ -47,7 +47,7 @@ internal class CachedRepository<T>(
         }
 
         logger.LogDebug("Cache miss for {Key}", key);
-        T? item = await inner.GetByIdAsync(id, ct);
+        var item = await inner.GetByIdAsync(id, ct);
         if (item is not null)
             await cache.SetStringAsync(key, JsonSerializer.Serialize(item), _cacheOptions, ct);
         return item;
@@ -55,7 +55,7 @@ internal class CachedRepository<T>(
 
     public async Task<T> CreateAsync(T entity, CancellationToken ct = default)
     {
-        T created = await inner.CreateAsync(entity, ct);
+        var created = await inner.CreateAsync(entity, ct);
         await InvalidateAsync(created.Id, ct);
         return created;
     }

@@ -2,7 +2,7 @@ using FoodTracker.Domain.Shared;
 
 namespace FoodTracker.Domain.Recipes;
 
-public class Recipe : IHaveMacronutrients, IMacroSource, IHaveId
+public class Recipe : IMacroSource, IHaveId
 {
     public string Id { get; init; } = string.Empty;
     public string Name { get; init; } = string.Empty;
@@ -12,12 +12,4 @@ public class Recipe : IHaveMacronutrients, IMacroSource, IHaveId
     public double Protein { get; init; }
     public double Carbs { get; init; }
     public double Fat { get; init; }
-
-    public Serving Serving => new(ServingUnit, ServingUnit == ServingUnit.Portion ? 1.0 : 100.0);
-
-    public MacroSnapshot ComputeMacros(double quantity)
-    {
-        double ratio = ServingUnit == ServingUnit.Portion ? quantity : quantity / 100.0;
-        return new(Calories * ratio, Protein * ratio, Carbs * ratio, Fat * ratio);
-    }
 }

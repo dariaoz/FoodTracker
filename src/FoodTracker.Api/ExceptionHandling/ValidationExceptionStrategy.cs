@@ -1,8 +1,7 @@
 using FoodTracker.Domain.Shared;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
-namespace FoodTracker.Infrastructure.ExceptionHandling;
+namespace FoodTracker.Api.ExceptionHandling;
 
 internal class ValidationExceptionStrategy : IExceptionHandlerStrategy
 {
@@ -10,7 +9,7 @@ internal class ValidationExceptionStrategy : IExceptionHandlerStrategy
 
     public async Task HandleAsync(HttpContext context, Exception exception, CancellationToken ct)
     {
-        ValidationException validationException = (ValidationException)exception;
+        var validationException = (ValidationException)exception;
 
         ProblemDetails problem = new()
         {

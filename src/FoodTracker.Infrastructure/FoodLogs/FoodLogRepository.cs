@@ -20,13 +20,13 @@ internal class FoodLogRepository : IFoodLogRepository
 
     public async Task<IList<FoodLog>> GetAllAsync(CancellationToken ct = default)
     {
-        NotionDatabase db = await _client.QueryDatabaseAsync(_databaseId, ct: ct);
+        var db = await _client.QueryDatabaseAsync(_databaseId, ct: ct);
         return db.Results.Select(FoodLogNotionMapper.ToEntity).ToList();
     }
 
     public async Task<FoodLog?> GetByIdAsync(string pageId, CancellationToken ct = default)
     {
-        NotionPage page = await _client.GetPageAsync(pageId, ct);
+        var page = await _client.GetPageAsync(pageId, ct);
         return FoodLogNotionMapper.ToEntity(page);
     }
 
@@ -37,13 +37,13 @@ internal class FoodLogRepository : IFoodLogRepository
             property = "Date",
             date = new { equals = date.ToString("yyyy-MM-dd") }
         };
-        NotionDatabase db = await _client.QueryDatabaseAsync(_databaseId, filter, ct);
+        var db = await _client.QueryDatabaseAsync(_databaseId, filter, ct);
         return db.Results.Select(FoodLogNotionMapper.ToEntity).ToList();
     }
 
     public async Task<FoodLog> CreateAsync(FoodLog entity, CancellationToken ct = default)
     {
-        NotionPage page = await _client.CreatePageAsync(_databaseId, FoodLogNotionMapper.ToNotionProperties(entity), ct);
+        var page = await _client.CreatePageAsync(_databaseId, FoodLogNotionMapper.ToNotionProperties(entity), ct);
         return FoodLogNotionMapper.ToEntity(page);
     }
 

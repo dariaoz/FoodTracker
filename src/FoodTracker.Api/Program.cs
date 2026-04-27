@@ -1,3 +1,4 @@
+using FoodTracker.Api.Configuration;
 using FoodTracker.Application;
 using FoodTracker.Infrastructure;
 using Microsoft.OpenApi.Models;
@@ -7,6 +8,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddInfrastructure(builder.Configuration);
 builder.Services.AddApplication();
 
+builder.Services.AddExceptionHandling();
 builder.Services.AddProblemDetails();
 builder.Services.AddControllers(options => options.SuppressAsyncSuffixInActionNames = false);
 builder.Services.AddSwaggerGen(options =>

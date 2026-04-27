@@ -13,7 +13,7 @@ internal static class NotionClientExtensions
 
         services.AddHttpClient<INotionClient, NotionClient>((sp, client) =>
         {
-            NotionOptions options = sp.GetRequiredService<IOptions<NotionOptions>>().Value;
+            var options = sp.GetRequiredService<IOptions<NotionOptions>>().Value;
             client.BaseAddress = new Uri(options.BaseAddress);
             client.DefaultRequestHeaders.Add("Notion-Version", options.NotionVersion);
         });
