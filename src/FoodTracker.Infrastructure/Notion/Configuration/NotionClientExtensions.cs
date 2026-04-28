@@ -1,9 +1,8 @@
-using FoodTracker.Infrastructure.Notion;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 
-namespace FoodTracker.Infrastructure.Configuration;
+namespace FoodTracker.Infrastructure.Notion.Configuration;
 
 internal static class NotionClientExtensions
 {

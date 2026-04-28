@@ -1,7 +1,6 @@
 using FoodTracker.Domain.FoodLogs;
 using FoodTracker.Domain.Shared;
 using FoodTracker.Infrastructure.Notion;
-using FoodTracker.Infrastructure.Shared;
 
 namespace FoodTracker.Infrastructure.FoodLogs;
 

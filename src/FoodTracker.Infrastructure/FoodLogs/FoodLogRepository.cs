@@ -1,13 +1,13 @@
-using FoodTracker.Application.FoodLogs.Interfaces;
+using FoodTracker.Application.Shared;
 using FoodTracker.Domain.FoodLogs;
 using FoodTracker.Infrastructure.Configuration;
 using FoodTracker.Infrastructure.Notion;
-using FoodTracker.Infrastructure.Shared;
+using FoodTracker.Infrastructure.Notion.Configuration;
 using Microsoft.Extensions.Options;
 
 namespace FoodTracker.Infrastructure.FoodLogs;
 
-internal class FoodLogRepository : IFoodLogRepository
+internal class FoodLogRepository : IRepository<FoodLog>
 {
     private readonly INotionClient _client;
     private readonly string _databaseId;
@@ -28,17 +28,6 @@ internal class FoodLogRepository : IFoodLogRepository
     {
         var page = await _client.GetPageAsync(pageId, ct);
         return FoodLogNotionMapper.ToEntity(page);
-    }
-
-    public async Task<IList<FoodLog>> GetByDateAsync(DateOnly date, CancellationToken ct = default)
-    {
-        var filter = new
-        {
-            property = "Date",
-            date = new { equals = date.ToString("yyyy-MM-dd") }
-        };
-        var db = await _client.QueryDatabaseAsync(_databaseId, filter, ct);
-        return db.Results.Select(FoodLogNotionMapper.ToEntity).ToList();
     }
 
     public async Task<FoodLog> CreateAsync(FoodLog entity, CancellationToken ct = default)

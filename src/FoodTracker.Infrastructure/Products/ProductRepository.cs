@@ -1,12 +1,13 @@
-using FoodTracker.Application.Products.Interfaces;
+using FoodTracker.Application.Shared;
 using FoodTracker.Domain.Products;
 using FoodTracker.Infrastructure.Configuration;
 using FoodTracker.Infrastructure.Notion;
+using FoodTracker.Infrastructure.Notion.Configuration;
 using Microsoft.Extensions.Options;
 
 namespace FoodTracker.Infrastructure.Products;
 
-internal class ProductRepository : IProductRepository
+internal class ProductRepository : IRepository<Product>
 {
     private readonly INotionClient _client;
     private readonly string _databaseId;
