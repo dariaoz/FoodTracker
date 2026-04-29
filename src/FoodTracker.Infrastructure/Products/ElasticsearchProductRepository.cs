@@ -21,7 +21,7 @@ internal class ElasticsearchProductRepository : ElasticsearchRepositoryBase<Prod
         : base(client, options.Value.ProductsIndex, scopeFactory, logger)
     {
     }
-    public Task<IList<Product>> SearchAsync(ProductFilter filter, CancellationToken ct = default) =>
+    public Task<IReadOnlyList<Product>> SearchAsync(ProductFilter filter, CancellationToken ct = default) =>
         SearchByNameAsync(filter.Name, f => f.Name, ct);
 
     public Task ReindexAsync(CancellationToken ct) =>

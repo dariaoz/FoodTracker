@@ -21,7 +21,7 @@ internal class ElasticsearchRecipeRepository : ElasticsearchRepositoryBase<Recip
         : base(client, options.Value.RecipesIndex, scopeFactory, logger)
     {
     }
-    public Task<IList<Recipe>> SearchAsync(RecipeFilter filter, CancellationToken ct = default) =>
+    public Task<IReadOnlyList<Recipe>> SearchAsync(RecipeFilter filter, CancellationToken ct = default) =>
         SearchByNameAsync(filter.Name, f => f.Name, ct);
 
     public Task ReindexAsync(CancellationToken ct) =>

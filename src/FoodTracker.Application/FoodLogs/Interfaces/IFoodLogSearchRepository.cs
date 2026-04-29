@@ -5,5 +5,5 @@ namespace FoodTracker.Application.FoodLogs.Interfaces;
 
 public interface IFoodLogSearchRepository : ISearchRepository<FoodLog>
 {
-    Task<IList<FoodLog>> SearchAsync(FoodLogFilter filter, CancellationToken ct = default);
+    Task<IReadOnlyList<FoodLog>> SearchAsync(FoodLogFilter filter, CancellationToken ct = default);
 }

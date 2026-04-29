@@ -36,7 +36,7 @@ internal abstract class ElasticsearchRepositoryBase<T> : ISearchRepository<T> wh
         return response.Found ? response.Source : default;
     }
 
-    protected async Task<IList<T>> GetAllAsync(CancellationToken ct = default)
+    protected async Task<IReadOnlyList<T>> GetAllAsync(CancellationToken ct = default)
     {
         var response = await Client.SearchAsync<T>(s => s
             .Indices(Index)
@@ -46,7 +46,7 @@ internal abstract class ElasticsearchRepositoryBase<T> : ISearchRepository<T> wh
         return response.Documents.ToList();
     }
 
-    protected async Task<IList<T>> SearchByNameAsync(string? name, Expression<Func<T, string>> nameField, CancellationToken ct)
+    protected async Task<IReadOnlyList<T>> SearchByNameAsync(string? name, Expression<Func<T, string>> nameField, CancellationToken ct)
     {
         if (string.IsNullOrWhiteSpace(name))
             return await GetAllAsync(ct);

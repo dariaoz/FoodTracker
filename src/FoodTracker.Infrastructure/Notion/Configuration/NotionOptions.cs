@@ -2,10 +2,10 @@ namespace FoodTracker.Infrastructure.Notion.Configuration;
 
 internal class NotionOptions
 {
-    public string BaseAddress { get; set; }
-    public string NotionVersion { get; set; }
-    public string ApiKey { get; set; }
-    public string ProductsDatabaseId { get; set; }
-    public string RecipesDatabaseId { get; set; }
-    public string FoodLogDatabaseId { get; set; }
+    public string BaseAddress { get; init; } = null!;
+    public string NotionVersion { get; init; } = null!;
+    public string ApiKey { get; init; } = null!;
+    public string ProductsDatabaseId { get; init; } = null!;
+    public string RecipesDatabaseId { get; init; } = null!;
+    public string FoodLogDatabaseId { get; init; } = null!;
 }

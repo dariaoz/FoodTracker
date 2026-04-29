@@ -28,7 +28,7 @@ public class RecipeService : IRecipeService
         _logger = logger;
     }
 
-    public Task<IList<Recipe>> SearchAsync(RecipeFilter filter, CancellationToken ct = default) =>
+    public Task<IReadOnlyList<Recipe>> SearchAsync(RecipeFilter filter, CancellationToken ct = default) =>
         _searchContext.Recipes.SearchAsync(filter, ct);
 
     public Task<Recipe?> GetByIdAsync(string id, CancellationToken ct = default) =>
@@ -39,7 +39,7 @@ public class RecipeService : IRecipeService
         _validator.Validate(recipe);
         var created = await _context.Recipes.CreateAsync(recipe, ct);
         _logger.LogInformation("Created recipe {Id} {Name}", created.Id, created.Name);
-        await _indexing.SyncAsync(() => _searchContext.Recipes.IndexAsync(created, ct), $"index recipe {created.Id}", ct);
+        await _indexing.SyncIndexAsync(() => _searchContext.Recipes.IndexAsync(created, ct), $"index recipe {created.Id}", ct);
         return created;
     }
 
@@ -47,6 +47,6 @@ public class RecipeService : IRecipeService
     {
         await _context.Recipes.DeleteAsync(id, ct);
         _logger.LogInformation("Deleted recipe {Id}", id);
-        await _indexing.SyncAsync(() => _searchContext.Recipes.DeleteAsync(id, ct), $"delete recipe {id}", ct);
+        await _indexing.SyncIndexAsync(() => _searchContext.Recipes.DeleteAsync(id, ct), $"delete recipe {id}", ct);
     }
 }

@@ -21,7 +21,7 @@ internal class ElasticsearchFoodLogRepository : ElasticsearchRepositoryBase<Food
         : base(client, options.Value.FoodLogsIndex, scopeFactory, logger)
     {
     }
-    public async Task<IList<FoodLog>> SearchAsync(FoodLogFilter filter, CancellationToken ct = default)
+    public async Task<IReadOnlyList<FoodLog>> SearchAsync(FoodLogFilter filter, CancellationToken ct = default)
     {
         if (!filter.DateFrom.HasValue && !filter.DateTo.HasValue)
             return await GetAllAsync(ct);

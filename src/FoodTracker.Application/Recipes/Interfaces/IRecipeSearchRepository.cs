@@ -5,5 +5,5 @@ namespace FoodTracker.Application.Recipes.Interfaces;
 
 public interface IRecipeSearchRepository : ISearchRepository<Recipe>
 {
-    Task<IList<Recipe>> SearchAsync(RecipeFilter filter, CancellationToken ct = default);
+    Task<IReadOnlyList<Recipe>> SearchAsync(RecipeFilter filter, CancellationToken ct = default);
 }

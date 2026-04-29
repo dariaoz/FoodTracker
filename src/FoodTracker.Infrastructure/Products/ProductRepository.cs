@@ -1,6 +1,5 @@
 using FoodTracker.Application.Shared;
 using FoodTracker.Domain.Products;
-using FoodTracker.Infrastructure.Configuration;
 using FoodTracker.Infrastructure.Notion;
 using FoodTracker.Infrastructure.Notion.Configuration;
 using Microsoft.Extensions.Options;

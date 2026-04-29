@@ -21,7 +21,7 @@ internal class IndexingService : IIndexingService
         _notificationService = notificationService;
         _logger = logger;
     }
-    public async Task SyncAsync(Func<Task> esAction, string operation, CancellationToken ct)
+    public async Task SyncIndexAsync(Func<Task> esAction, string operation, CancellationToken ct)
     {
         try
         {
