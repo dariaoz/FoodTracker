@@ -1,4 +1,5 @@
 using FoodTracker.Api.Models.Recipes;
+using FoodTracker.Application.Recipes;
 using FoodTracker.Application.Recipes.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 
@@ -13,9 +14,9 @@ public class RecipesController : ControllerBase
     public RecipesController(IRecipeService service) => _service = service;
 
     [HttpGet]
-    public async Task<IActionResult> GetAllAsync(CancellationToken ct)
+    public async Task<IActionResult> SearchAsync([FromQuery] string? name, CancellationToken ct)
     {
-        var recipes = await _service.GetAllAsync(ct);
+        var recipes = await _service.SearchAsync(new RecipeFilter(name), ct);
         return Ok(recipes.Select(r => r.ToResponse()).ToList());
     }
 

@@ -11,6 +11,7 @@
     </ItemGroup>
 
     <ItemGroup>
+        <PackageReference Include="Elastic.Clients.Elasticsearch" Version="9.3.5" />
         <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="9.0.0" />
         <PackageReference Include="Scrutor" Version="7.0.0" />
         <PackageReference Include="StackExchange.Redis" Version="2.8.31" />

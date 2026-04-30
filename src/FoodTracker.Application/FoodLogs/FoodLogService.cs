@@ -9,19 +9,30 @@ namespace FoodTracker.Application.FoodLogs;
 public class FoodLogService : IFoodLogService
 {
     private readonly INotionContext _context;
+    private readonly ISearchContext _searchContext;
     private readonly IValidator<FoodLog> _validator;
+    private readonly IIndexingService _indexing;
     private readonly ILogger<FoodLogService> _logger;
 
-    public FoodLogService(INotionContext context, IValidator<FoodLog> validator, ILogger<FoodLogService> logger)
+    public FoodLogService(
+        INotionContext context,
+        ISearchContext searchContext,
+        IValidator<FoodLog> validator,
+        IIndexingService indexing,
+        ILogger<FoodLogService> logger)
     {
         _context = context;
+        _searchContext = searchContext;
         _validator = validator;
+        _indexing = indexing;
         _logger = logger;
     }
 
-    public Task<IList<FoodLog>> GetAllAsync(CancellationToken ct = default) => _context.FoodLogs.GetAllAsync(ct);
-    public Task<IList<FoodLog>> GetByDateAsync(DateOnly date, CancellationToken ct = default) => _context.FoodLogs.GetByDateAsync(date, ct);
-    public Task<FoodLog?> GetByIdAsync(string id, CancellationToken ct = default) => _context.FoodLogs.GetByIdAsync(id, ct);
+    public Task<IReadOnlyList<FoodLog>> GetAsync(FoodLogFilter filter, CancellationToken ct = default) =>
+        _searchContext.FoodLogs.SearchAsync(filter, ct);
+
+    public Task<FoodLog?> GetByIdAsync(string id, CancellationToken ct = default) =>
+        _searchContext.FoodLogs.GetByIdAsync(id, ct);
 
     public async Task<FoodLog> CreateAsync(FoodLog foodLog, CancellationToken ct = default)
     {
@@ -36,7 +47,6 @@ public class FoodLogService : IFoodLogService
 
         var created = await _context.FoodLogs.CreateAsync(new()
         {
-            Id = foodLog.Id,
             Date = foodLog.Date,
             ProductId = foodLog.ProductId,
             RecipeId = foodLog.RecipeId,
@@ -47,7 +57,11 @@ public class FoodLogService : IFoodLogService
             Carbs = macros.Carbs,
             Fat = macros.Fat
         }, ct);
-        _logger.LogInformation("Created food log {Id} for {SourceType} {SourceId} on {Date}", created.Id, sourceType, sourceId, foodLog.Date);
+
+        _logger.LogInformation("Created food log {Id} for {SourceType} {SourceId} on {Date}",
+            created.Id, sourceType, sourceId, foodLog.Date);
+
+        await _indexing.SyncIndexAsync(() => _searchContext.FoodLogs.IndexAsync(created, ct), $"index food log {created.Id}", ct);
         return created;
     }
 
@@ -55,17 +69,21 @@ public class FoodLogService : IFoodLogService
     {
         await _context.FoodLogs.DeleteAsync(id, ct);
         _logger.LogInformation("Deleted food log {Id}", id);
+        await _indexing.SyncIndexAsync(() => _searchContext.FoodLogs.DeleteAsync(id, ct), $"delete food log {id}", ct);
     }
 
-    private async Task<(IMacroSource Source, string SourceType, string SourceId)> ResolveSourceAsync(FoodLog foodLog, CancellationToken ct)
+    private async Task<(IMacroSource Source, string SourceType, string SourceId)> ResolveSourceAsync(
+        FoodLog foodLog, CancellationToken ct)
     {
         var isProduct = foodLog.ProductId is not null;
         var sourceType = isProduct ? "product" : "recipe";
         var sourceId = isProduct ? foodLog.ProductId! : foodLog.RecipeId!;
 
         IMacroSource source = isProduct
-            ? await _context.Products.GetByIdAsync(sourceId, ct) ?? throw new ValidationException([$"Product '{sourceId}' not found."])
-            : await _context.Recipes.GetByIdAsync(sourceId, ct) ?? throw new ValidationException([$"Recipe '{sourceId}' not found."]);
+            ? await _searchContext.Products.GetByIdAsync(sourceId, ct)
+              ?? throw new ValidationException([$"Product '{sourceId}' not found."])
+            : await _searchContext.Recipes.GetByIdAsync(sourceId, ct)
+              ?? throw new ValidationException([$"Recipe '{sourceId}' not found."]);
 
         return (source, sourceType, sourceId);
     }

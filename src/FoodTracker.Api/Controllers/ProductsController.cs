@@ -1,4 +1,5 @@
 using FoodTracker.Api.Models.Products;
+using FoodTracker.Application.Products;
 using FoodTracker.Application.Products.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 
@@ -13,9 +14,9 @@ public class ProductsController : ControllerBase
     public ProductsController(IProductService service) => _service = service;
 
     [HttpGet]
-    public async Task<IActionResult> GetAllAsync(CancellationToken ct)
+    public async Task<IActionResult> SearchAsync([FromQuery] string? name, CancellationToken ct)
     {
-        var products = await _service.GetAllAsync(ct);
+        var products = await _service.SearchAsync(new ProductFilter(name), ct);
         return Ok(products.Select(p => p.ToResponse()).ToList());
     }
 

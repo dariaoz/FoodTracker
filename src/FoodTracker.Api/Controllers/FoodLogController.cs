@@ -1,4 +1,5 @@
 using FoodTracker.Api.Models.FoodLogs;
+using FoodTracker.Application.FoodLogs;
 using FoodTracker.Application.FoodLogs.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 
@@ -13,11 +14,9 @@ public class FoodLogController : ControllerBase
     public FoodLogController(IFoodLogService service) => _service = service;
 
     [HttpGet]
-    public async Task<IActionResult> GetAllAsync([FromQuery] DateOnly? date, CancellationToken ct)
+    public async Task<IActionResult> GetAsync([FromQuery] DateOnly? from, [FromQuery] DateOnly? to, CancellationToken ct)
     {
-        var foodLogs = date.HasValue
-            ? await _service.GetByDateAsync(date.Value, ct)
-            : await _service.GetAllAsync(ct);
+        var foodLogs = await _service.GetAsync(new FoodLogFilter(from, to), ct);
         return Ok(foodLogs.Select(fl => fl.ToResponse()).ToList());
     }
 

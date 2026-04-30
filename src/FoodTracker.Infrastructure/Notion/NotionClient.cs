@@ -1,7 +1,6 @@
-using System.Net.Http.Headers;
 using System.Text;
 using System.Text.Json;
-using FoodTracker.Infrastructure.Configuration;
+using FoodTracker.Infrastructure.Notion.Configuration;
 using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;

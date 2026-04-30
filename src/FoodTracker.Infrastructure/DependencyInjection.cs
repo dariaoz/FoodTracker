@@ -1,4 +1,6 @@
 using FoodTracker.Infrastructure.Configuration;
+using FoodTracker.Infrastructure.Elasticsearch.Configuration;
+using FoodTracker.Infrastructure.Notion.Configuration;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -11,5 +13,7 @@ public static class DependencyInjection
         services.AddNotionClient(configuration);
         services.AddRedisCache(configuration);
         services.AddNotionRepositories();
+        services.AddElasticsearch(configuration);
+        services.AddBackgroundServices();
     }
 }

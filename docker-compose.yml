@@ -13,8 +13,11 @@ services:
       - Notion__FoodLogDatabaseId=${NOTION_FOODLOG_DB_ID}
       - Redis__ConnectionString=redis:6379
       - Cache__TtlMinutes=15
+      - Elasticsearch__Url=http://elasticsearch:9200
     depends_on:
       redis:
+        condition: service_healthy
+      elasticsearch:
         condition: service_healthy
 
   redis:
@@ -26,3 +29,17 @@ services:
       interval: 5s
       timeout: 3s
       retries: 5
+
+  elasticsearch:
+    image: elasticsearch:9.0.3
+    ports:
+      - "9200:9200"
+    environment:
+      - discovery.type=single-node
+      - xpack.security.enabled=false
+      - ES_JAVA_OPTS=-Xms512m -Xmx512m
+    healthcheck:
+      test: ["CMD-SHELL", "curl -s http://localhost:9200/_cluster/health | grep -qE '\"status\":\"(green|yellow)\"'"]
+      interval: 10s
+      timeout: 5s
+      retries: 10

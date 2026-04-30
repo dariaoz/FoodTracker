@@ -1,7 +1,7 @@
-using FoodTracker.Application.FoodLogs.Interfaces;
-using FoodTracker.Application.Products.Interfaces;
-using FoodTracker.Application.Recipes.Interfaces;
 using FoodTracker.Application.Shared;
+using FoodTracker.Domain.FoodLogs;
+using FoodTracker.Domain.Products;
+using FoodTracker.Domain.Recipes;
 using FoodTracker.Infrastructure.FoodLogs;
 using FoodTracker.Infrastructure.Notion;
 using FoodTracker.Infrastructure.Products;
@@ -14,14 +14,9 @@ internal static class RepositoryExtensions
 {
     public static void AddNotionRepositories(this IServiceCollection services)
     {
-        services.AddScoped<IProductRepository, ProductRepository>();
-        services.AddScoped<IRecipeRepository, RecipeRepository>();
-        services.AddScoped<IFoodLogRepository, FoodLogRepository>();
-
-        services.Decorate<IProductRepository, CachedProductRepository>();
-        services.Decorate<IRecipeRepository, CachedRecipeRepository>();
-        services.Decorate<IFoodLogRepository, CachedFoodLogRepository>();
-
+        services.AddScoped<IRepository<Product>, ProductRepository>();
+        services.AddScoped<IRepository<Recipe>, RecipeRepository>();
+        services.AddScoped<IRepository<FoodLog>, FoodLogRepository>();
         services.AddScoped<INotionContext, NotionContext>();
     }
 }

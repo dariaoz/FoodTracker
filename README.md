@@ -5,23 +5,26 @@ REST API for tracking daily food intake. Products and recipes are stored in Noti
 ## Stack
 
 - **ASP.NET Core 9** — Web API
-- **Notion API** (`2026-03-11`) — persistence backend
-- **Redis** — response caching (15 min TTL for entities, 7 days for Notion data-source ID mappings)
+- **Notion API** (`2026-03-11`) — persistence backend (source of truth)
+- **Elasticsearch** — read backend (all GET requests served from ES)
+- **Redis** — caches Notion data-source ID mappings (7-day TTL)
 - **Docker Compose** — local development
 
 ## Prerequisites
 
 - .NET 9 SDK
 - Redis (or Docker)
+- Elasticsearch (or Docker)
 - Notion integration token and three Notion databases: **Products**, **Recipes**, **Food Log**
 
 ## Getting started
 
 ### Local (without Docker)
 
-1. Start Redis:
+1. Start Redis and Elasticsearch:
    ```bash
    docker run -p 6379:6379 redis:7-alpine
+   docker run -p 9200:9200 -e "discovery.type=single-node" elasticsearch:8.13.0
    ```
 
 2. Set user secrets:
@@ -59,6 +62,18 @@ docker compose up --build
 
 API is exposed on port `8080`.
 
+### Elasticsearch index
+
+All reads go to Elasticsearch; Notion is the write-only source of truth. On startup (non-Development environments), the app automatically triggers a full reindex from Notion into ES — no manual step needed after deploy.
+
+In Development (local debugging) the startup reindex is skipped. If the ES index is empty locally, populate it once with:
+
+```bash
+curl -X POST http://localhost:5000/admin/reindex
+```
+
+The same endpoint can be called manually at any time to force a full resync.
+
 ## API
 
 All endpoints return `400` for validation errors and `404` when an entity is not found. `ServingUnit` is returned as a string (`"Gram"`, `"Milliliter"`, `"Portion"`).
@@ -87,7 +102,7 @@ All endpoints return `400` for validation errors and `404` when an entity is not
 
 | Method | Path | Description |
 |--------|------|-------------|
-| GET | `/foodlog` | List all entries (optional `?date=yyyy-MM-dd` filter) |
+| GET | `/foodlog` | List all entries (optional `?from=yyyy-MM-dd&to=yyyy-MM-dd` filter) |
 | GET | `/foodlog/{id}` | Get entry by ID |
 | POST | `/foodlog` | Create entry |
 | DELETE | `/foodlog/{id}` | Delete entry |
